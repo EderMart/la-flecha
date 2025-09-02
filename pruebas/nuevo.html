@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animación GSAP - L, F y Flecha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        .svg-element {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        .svg-left {
+            transform: translateY(-450px);
+        }
+
+        .svg-right {
+            transform: translateY(400px);
+        }
+
+        .svg-arrow {
+            transform: translateY(500px);
+        }
+
+        .arrow {
+            transform: translateY(-50%) translateX(-200%);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 640px) {
+            .svg-left {
+                transform: translateY(-300px);
+            }
+            .svg-right {
+                transform: translateY(300px);
+            }
+            .arrow {
+                transform: translateY(-50%) translateX(-150%);
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .svg-left {
+                transform: translateY(-375px);
+            }
+            .svg-right {
+                transform: translateY(375px);
+            }
+            .arrow {
+                transform: translateY(-50%) translateX(-175%);
+            }
+        }
+
+        .trail {
+            box-shadow: 0 0 10px #ffdd59;
+        }
+    </style>
+</head>
+<body class="m-0 p-0 h-screen bg-white flex justify-center items-center font-sans overflow-hidden">
+    <div class="relative w-full max-w-[600px] h-[400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Reemplaza estas URLs con tus propias imágenes SVG -->
+        <img src="../utils/letral.svg" alt="Imagen L" class="svg-element svg-left absolute w-[80px] h-[100px] sm:w-[100px] sm:h-[125px] lg:w-[120px] lg:h-[150px] left-[20%] sm:left-[25%] lg:left-[185px] top-[35%] sm:top-[35%] lg:top-[140px]">
+        <img src="../utils/letraf.svg" alt="Imagen F" class="svg-element svg-right absolute w-[100px] h-[110px] sm:w-[125px] sm:h-[138px] lg:w-[150px] lg:h-[166px] right-[20%] sm:right-[25%] lg:right-[193px] top-[35%] sm:top-[35%] lg:top-[140px]">
+        <img src="../utils/flecha.svg" alt="Flecha" class="svg-arrow arrow absolute -left-[200px] sm:-left-[350px] lg:-left-[515px] h-[35px] sm:h-[43px] lg:h-[51px] top-[54%] text-[50px] sm:text-[65px] lg:text-[80px] text-yellow-300">
+        <!-- <div class="arrow">→</div> -->
+        
+        <!-- Partículas de estela para la flecha -->
+        <div class="trail absolute w-1 h-1 bg-yellow-300 rounded-full opacity-0" id="trail1"></div>
+        <div class="trail absolute w-1 h-1 bg-yellow-300 rounded-full opacity-0" id="trail2"></div>
+        <div class="trail absolute w-1 h-1 bg-yellow-300 rounded-full opacity-0" id="trail3"></div>
+        <div class="trail absolute w-1 h-1 bg-yellow-300 rounded-full opacity-0" id="trail4"></div>
+        <div class="trail absolute w-1 h-1 bg-yellow-300 rounded-full opacity-0" id="trail5"></div>
+    </div>
+
+    <script>
+        // Crear timeline principal
+        const tl = gsap.timeline();
+
+        // Animación de entrada de las imágenes SVG
+        tl.to('.svg-left', {
+            y: 0,
+            duration: 1.2,
+            ease: "bounce.out",
+            delay: 0.5
+        })
+        .to('.svg-right', {
+            y: 0,
+            duration: 1.2,
+            ease: "bounce.out"
+        }, "-=0.8") // Empieza 0.8 segundos antes de que termine la anterior
+        
+        // Pausa antes de la flecha
+        .to({}, { duration: 0.3 })
+        
+        // Animación de la flecha atravesando - ajustada para responsive
+        .to('.arrow', {
+            x: () => window.innerWidth <= 640 ? 400 : window.innerWidth <= 1024 ? 550 : 700,
+            duration: 1.5,
+            ease: "power2.inOut",
+            onUpdate: function() {
+                // Crear efecto de estela
+                createTrailEffect();
+            }
+        })
+        
+        // Efecto final: las imágenes se iluminan cuando la flecha las atraviesa
+        .to('.svg-element', {
+            scale: 1.1,
+            filter: "drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 30px #ffffff) brightness(1.3)",
+            duration: 0.3,
+            yoyo: true,
+            repeat: 1
+        }, "-=0.8");
+
+        // Función para crear efecto de estela
+        function createTrailEffect() {
+            const arrow = document.querySelector('.arrow');
+            const arrowRect = arrow.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            // Calcular posición relativa de la flecha
+            const relativeX = arrowRect.left - containerRect.left;
+            const relativeY = arrowRect.top - containerRect.top + arrowRect.height / 2;
+            
+            // Animar partículas de estela
+            gsap.to('.trail', {
+                x: relativeX - 40,
+                y: relativeY,
+                opacity: 1,
+                duration: 0.1,
+                stagger: 0.05,
+                onComplete: function() {
+                    gsap.to('.trail', {
+                        opacity: 0,
+                        scale: 0.5,
+                        duration: 0.3
+                    });
+                }
+            });
+        }
+
+        // Efecto adicional: hover en las imágenes
+        document.querySelectorAll('.svg-element').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                gsap.to(element, {
+                    scale: 1.2,
+                    rotation: 5,
+                    duration: 0.3,
+                    ease: "back.out(1.7)"
+                });
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                gsap.to(element, {
+                    scale: 1,
+                    rotation: 0,
+                    duration: 0.3,
+                    ease: "back.out(1.7)"
+                });
+            });
+        });
+
+        // Botón para repetir animación (presiona barra espaciadora)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                // Obtener valores responsive para reiniciar
+                const isSmall = window.innerWidth <= 640;
+                const isMedium = window.innerWidth > 640 && window.innerWidth <= 1024;
+                
+                let yOffset;
+                if (isSmall) {
+                    yOffset = -300;
+                } else if (isMedium) {
+                    yOffset = -375;
+                } else {
+                    yOffset = -450;
+                }
+                
+                // Reiniciar posiciones
+                gsap.set('.svg-left', { y: yOffset });
+                gsap.set('.svg-right', { y: Math.abs(yOffset) });
+                gsap.set('.arrow', { x: isSmall ? -80 : isMedium ? -90 : -100 });
+                gsap.set('.svg-element', { 
+                    scale: 1, 
+                    filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))" 
+                });
+                
+                // Reiniciar animación
+                tl.restart();
+            }
+        });
+    </script>
+</body>
+</html>
