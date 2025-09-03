@@ -206,7 +206,7 @@ const LaFlecha = () => {
             Descubre nuestra colección de joyas únicas, donde cada pieza cuenta una historia de amor, 
             elegancia y sofisticación. Crafted con los mejores materiales del mundo.
           </p>
-          <button className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-xl">
+          <button className="bg-amber-600 hover:bg-amber-700 text-black px-8 py-4 rounded-full text-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-xl">
             Explorar Colección
           </button>
         </div>
@@ -214,39 +214,34 @@ const LaFlecha = () => {
 
       {/* Features */}
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Award className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Calidad Premium</h3>
-              <p className="text-gray-600">Materiales de la más alta calidad</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Shield className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Garantía Vitalicia</h3>
-              <p className="text-gray-600">Protección completa en tus joyas</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Truck className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Envío Gratuito</h3>
-              <p className="text-gray-600">Entrega segura a todo el país</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Star className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Diseño Exclusivo</h3>
-              <p className="text-gray-600">Piezas únicas y personalizadas</p>
-            </div>
-          </div>
+  <div className="max-w-6xl mx-auto px-4">
+    <div className="grid md:grid-cols-3 gap-8">
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Award className="w-8 h-8 text-amber-600" />
         </div>
-      </section>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Calidad Premium</h3>
+        <p className="text-gray-600">Materiales de la más alta calidad</p>
+      </div>
+      
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Shield className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Garantía Vitalicia</h3>
+        <p className="text-gray-600">Protección completa en tus joyas</p>
+      </div>
+      
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Star className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Diseño Exclusivo</h3>
+        <p className="text-gray-600">Piezas únicas y personalizadas</p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Productos */}
       <section id="productos" className="py-20 bg-gradient-to-b from-gray-50 to-white">

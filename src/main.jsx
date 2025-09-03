@@ -12,7 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Header/>
+      <Header className="z-50 w-full"/>
       <App />
       <Footer/>
     </BrowserRouter>
