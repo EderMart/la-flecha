@@ -7,8 +7,8 @@ export const Footer = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">⟡</span>
+                <div className="w-10 h-10  flex items-center justify-center">
+                  <img src="../utils/Logolaflecha-white.svg" alt="logo la flecha" />
                 </div>
                 <h3 className="text-2xl font-bold">La Flecha</h3>
               </div>
@@ -19,17 +19,17 @@ export const Footer = () => {
             <div>
               <h4 className="text-lg font-semibold mb-4">Contacto</h4>
               <div className="space-y-2 text-gray-400">
-                <p>📍 Av. Principal 123, Centro</p>
-                <p>📞 +52 (555) 123-4567</p>
+                <p>📍 a 18-121, Cra. 20 #181, Zaragoza, Antioquia</p>
+                <p>📞 +57 321 6414607</p>
                 <p>✉️ info@laflecha.com</p>
               </div>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">Horarios</h4>
               <div className="space-y-2 text-gray-400">
-                <p>Lunes - Viernes: 9:00 - 19:00</p>
-                <p>Sábado: 10:00 - 18:00</p>
-                <p>Domingo: 11:00 - 16:00</p>
+                <p>Lunes - Viernes: 7:30 am - 7:30 pm</p>
+                <p>Sábado: 8:00 am - 7:30 pm</p>
+                <p>Domingo: 8:30 am - 6:30 pm</p>
               </div>
             </div>
           </div>
