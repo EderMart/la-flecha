@@ -13,7 +13,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16 sm:h-20">
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-lg flex items-center justify-center">
-              <img src="../utils/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+              <img src="../public/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
             </div>
             <div>
               {/* <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">
@@ -29,7 +29,7 @@ export default function Header() {
             <a href="#Footer" className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-sm lg:text-base">Contacto</a>
           </nav>
 
-          {/* Mobile menu button */}
+          {/* Botón para mobil */}
           <button 
             className="md:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -43,7 +43,7 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Navegación mobil */}
         {isMenuOpen && (
           <nav className="md:hidden pb-4">
             <div className="flex flex-col space-y-3">
