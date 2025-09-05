@@ -40,7 +40,7 @@ const LaFlecha = () => {
                         animation: 'slideDownBounce 1.2s ease-out 0.5s both'
                     }}
                 >
-                    <img src="../public/letral.svg" alt="logo la flecha" className="w-full h-full object-contain " />
+                    <img src="/letral.svg" alt="logo la flecha" className="w-full h-full object-contain " />
                 </div>
 
                 {/* F */}
@@ -50,7 +50,7 @@ const LaFlecha = () => {
                         animation: 'slideUpBounce 1.2s ease-out 1.3s both'
                     }}
                 >
-                    <img src="../public/letraf.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+                    <img src="/letraf.svg" alt="logo la flecha" className="w-full h-full object-contain" />
                 </div>
 
                 {/* Flecha */}
@@ -60,7 +60,7 @@ const LaFlecha = () => {
                         animation: 'arrowSlide 1.5s ease-in-out 2.1s both'
                     }}
                 >
-                    <img src="../public/flecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+                    <img src="/flecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
                 </div>
             </div>
 

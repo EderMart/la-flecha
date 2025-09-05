@@ -8,7 +8,7 @@ export const Footer = () => {
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-10 h-10  flex items-center justify-center">
-                  <img src="../public/Logolaflecha-white.svg" alt="logo la flecha" />
+                  <img src="/Logolaflecha-white.svg" alt="logo la flecha" />
                 </div>
                 <h3 className="text-2xl font-bold">La Flecha</h3>
               </div>

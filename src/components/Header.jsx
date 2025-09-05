@@ -13,7 +13,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16 sm:h-20">
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-lg flex items-center justify-center">
-              <img src="../public/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+              <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
             </div>
             <div>
               {/* <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">
