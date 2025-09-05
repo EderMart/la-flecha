@@ -328,7 +328,7 @@ const Admin = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12  flex items-center justify-center">
-                <img src="../public/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+                <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">Panel de Administración</h1>
