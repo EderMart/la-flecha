@@ -19,9 +19,9 @@ export const Footer = () => {
             <div>
               <h4 className="text-lg font-semibold mb-4">Contacto</h4>
               <div className="space-y-2 text-gray-400">
-                <p>📍 a 18-121, Cra. 20 #181, Zaragoza, Antioquia</p>
-                <p>📞 +57 321 6414607</p>
-                <p>✉️ info@laflecha.com</p>
+                <p>📍 Calle bolívar 40-20, Zaragoza, Colombia, 052440</p>
+                <p>📞 +57 300 7269024</p>
+                <p>✉️ chatlaflecha@gmail.com</p>
               </div>
             </div>
             <div>
