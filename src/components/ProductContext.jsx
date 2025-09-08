@@ -9,7 +9,7 @@ import {
   updateDoc,
   onSnapshot 
 } from 'firebase/firestore';
-import { db } from './firebase'; // Asegúrate de que la ruta sea correcta
+import { db } from '../../firebase'; // Asegúrate de que la ruta sea correcta
 
 const ProductContext = createContext();
 
