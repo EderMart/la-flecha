@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, RotateCcw, AlertCircle, BarChart3, Database, RefreshCw } from 'lucide-react';
 import { useProducts } from './ProductContext';
 
-const Admin = () => {
+const AdministrationPanel = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [password, setPassword] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
@@ -303,14 +303,14 @@ const Admin = () => {
 
             <button
               onClick={handleLogin}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
               Acceder al Panel
             </button>
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Contraseña de prueba: <code className="bg-gray-100 px-2 py-1 rounded">admin123</code></p>
+          
           </div>
         </div>
 
@@ -338,21 +338,21 @@ const Admin = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => setShowStatsModal(true)}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-purple-500 hover:bg-purple-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <BarChart3 className="w-4 h-4" />
                 <span>Estadísticas</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-blue-500 hover:bg-blue-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <Download className="w-4 h-4" />
                 <span>Backup</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <X className="w-4 h-4" />
                 <span>Cerrar Sesión</span>
@@ -374,7 +374,7 @@ const Admin = () => {
                   onClick={() => setActiveCategory(category.key)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                     activeCategory === category.key
-                      ? 'bg-amber-500 text-white'
+                      ? 'bg-amber-500 text-black'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -424,7 +424,7 @@ const Admin = () => {
               {/* Botón agregar */}
               <button
                 onClick={handleAddNew}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar</span>
@@ -679,7 +679,7 @@ const Admin = () => {
                   </p>
                   <button
                     onClick={handleExportData}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                   >
                     <Download className="w-4 h-4" />
                     <span>Descargar Backup</span>
@@ -701,7 +701,7 @@ const Admin = () => {
                   />
                   <button
                     onClick={handleImportData}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-blue-500 hover:bg-blue-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                   >
                     <Upload className="w-4 h-4" />
                     <span>Importar Datos</span>
@@ -716,7 +716,7 @@ const Admin = () => {
                   </p>
                   <button
                     onClick={handleResetData}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                   >
                     <RotateCcw className="w-4 h-4" />
                     <span>Restaurar Iniciales</span>
@@ -731,7 +731,7 @@ const Admin = () => {
                   </p>
                   <button
                     onClick={handleClearLocalStorage}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Limpiar Todo</span>
@@ -752,4 +752,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default AdministrationPanel;
