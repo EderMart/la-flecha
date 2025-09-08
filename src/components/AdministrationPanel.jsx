@@ -1,10 +1,14 @@
+// AdministrationPanel.jsx - REEMPLAZA tu archivo actual
 import React, { useState, useEffect } from 'react';
-import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, RotateCcw, AlertCircle, BarChart3, Database, RefreshCw } from 'lucide-react';
+import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, RotateCcw, AlertCircle, BarChart3, Database, RefreshCw, Mail, Lock, LogOut } from 'lucide-react';
 import { useProducts } from './ProductContext';
+import { loginAdmin, logoutAdmin, useAuthState, isAdminUser } from '../../auth';
 
 const AdministrationPanel = () => {
   const [showAdmin, setShowAdmin] = useState(false);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('anillos');
@@ -12,7 +16,10 @@ const AdministrationPanel = () => {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [importData, setImportData] = useState('');
   const [notification, setNotification] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'list'
+  const [viewMode, setViewMode] = useState('grid');
+  
+  // Estado de autenticación
+  const { user, loading: authLoading } = useAuthState();
   
   // Usar el contexto de productos
   const { 
@@ -30,54 +37,95 @@ const AdministrationPanel = () => {
     markLastUpdated
   } = useProducts();
 
+  // Verificar si el usuario es admin
+  useEffect(() => {
+    if (user && isAdminUser(user)) {
+      setShowAdmin(true);
+      showNotification(`Bienvenido ${user.email}`);
+    } else if (user && !isAdminUser(user)) {
+      showNotification('No tienes permisos de administrador', 'error');
+      handleLogout();
+    } else {
+      setShowAdmin(false);
+    }
+  }, [user]);
+
   //mostrar notificaciones
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleLogin = () => {
-    if (password === 'admin123') {
-      setShowAdmin(true);
-      setPassword('');
-      showNotification('Sesión iniciada correctamente');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    
+    if (!email || !password) {
+      setLoginError('Por favor completa todos los campos');
+      return;
+    }
+
+    const result = await loginAdmin(email, password);
+    
+    if (result.success) {
+      if (isAdminUser(result.user)) {
+        setEmail('');
+        setPassword('');
+        // El useEffect se encargará de mostrar el admin
+      } else {
+        setLoginError('No tienes permisos de administrador');
+        await logoutAdmin();
+      }
     } else {
-      showNotification('Contraseña incorrecta', 'error');
+      setLoginError('Credenciales incorrectas');
     }
   };
 
-  const handleLogout = () => {
-    setShowAdmin(false);
-    setEditingProduct(null);
-    showNotification('Sesión cerrada');
+  const handleLogout = async () => {
+    const result = await logoutAdmin();
+    if (result.success) {
+      setShowAdmin(false);
+      setEditingProduct(null);
+      setEmail('');
+      setPassword('');
+      showNotification('Sesión cerrada');
+    }
   };
 
   const handleEdit = (categoria, producto) => {
     setEditingProduct({ categoria, ...producto });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingProduct) {
-      const updatedProduct = {
-        id: editingProduct.id,
-        titulo: editingProduct.titulo,
-        precio: editingProduct.precio,
-        descripcion: editingProduct.descripcion,
-        imagen: editingProduct.imagen
-      };
-      
-      updateProduct(editingProduct.categoria, updatedProduct);
-      markLastUpdated();
-      showNotification('Producto actualizado correctamente');
+      try {
+        const updatedProduct = {
+          id: editingProduct.id,
+          titulo: editingProduct.titulo,
+          precio: editingProduct.precio,
+          descripcion: editingProduct.descripcion,
+          imagen: editingProduct.imagen
+        };
+        
+        await updateProduct(editingProduct.categoria, updatedProduct);
+        await markLastUpdated();
+        showNotification('Producto actualizado correctamente');
+        setEditingProduct(null);
+      } catch (error) {
+        showNotification('Error al actualizar el producto', 'error');
+      }
     }
-    setEditingProduct(null);
   };
 
-  const handleDelete = (categoria, id) => {
+  const handleDelete = async (categoria, id) => {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-      deleteProduct(categoria, id);
-      markLastUpdated();
-      showNotification('Producto eliminado correctamente', 'warning');
+      try {
+        await deleteProduct(categoria, id);
+        await markLastUpdated();
+        showNotification('Producto eliminado correctamente', 'warning');
+      } catch (error) {
+        showNotification('Error al eliminar el producto', 'error');
+      }
     }
   };
 
@@ -93,20 +141,24 @@ const AdministrationPanel = () => {
     });
   };
 
-  const handleAddNewProduct = () => {
+  const handleAddNewProduct = async () => {
     if (editingProduct && editingProduct.titulo && editingProduct.precio) {
-      const newProduct = {
-        id: editingProduct.id,
-        titulo: editingProduct.titulo,
-        precio: editingProduct.precio,
-        descripcion: editingProduct.descripcion,
-        imagen: editingProduct.imagen || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop'
-      };
-      
-      addProduct(editingProduct.categoria, newProduct);
-      markLastUpdated();
-      setEditingProduct(null);
-      showNotification('Producto agregado correctamente');
+      try {
+        const newProduct = {
+          id: editingProduct.id,
+          titulo: editingProduct.titulo,
+          precio: editingProduct.precio,
+          descripcion: editingProduct.descripcion,
+          imagen: editingProduct.imagen || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop'
+        };
+        
+        await addProduct(editingProduct.categoria, newProduct);
+        await markLastUpdated();
+        setEditingProduct(null);
+        showNotification('Producto agregado correctamente');
+      } catch (error) {
+        showNotification('Error al agregar el producto', 'error');
+      }
     } else {
       showNotification('Por favor completa al menos el título y el precio', 'error');
     }
@@ -124,34 +176,46 @@ const AdministrationPanel = () => {
     showNotification('Backup exportado correctamente');
   };
 
-  const handleImportData = () => {
+  const handleImportData = async () => {
     if (importData.trim()) {
-      const success = importProducts(importData);
-      if (success) {
-        setImportData('');
-        setShowBackupModal(false);
-        markLastUpdated();
-        showNotification('Datos importados correctamente');
-      } else {
-        showNotification('Error: Formato de datos inválido', 'error');
+      try {
+        const success = await importProducts(importData);
+        if (success) {
+          setImportData('');
+          setShowBackupModal(false);
+          await markLastUpdated();
+          showNotification('Datos importados correctamente');
+        } else {
+          showNotification('Error: Formato de datos inválido', 'error');
+        }
+      } catch (error) {
+        showNotification('Error al importar los datos', 'error');
       }
     } else {
       showNotification('Por favor pega los datos JSON para importar', 'error');
     }
   };
 
-  const handleResetData = () => {
+  const handleResetData = async () => {
     if (confirm('¿Estás seguro de que quieres restaurar todos los productos a los valores iniciales? Esta acción no se puede deshacer.')) {
-      resetProducts();
-      markLastUpdated();
-      showNotification('Productos restaurados a valores iniciales', 'warning');
+      try {
+        await resetProducts();
+        await markLastUpdated();
+        showNotification('Productos restaurados a valores iniciales', 'warning');
+      } catch (error) {
+        showNotification('Error al restaurar los productos', 'error');
+      }
     }
   };
 
-  const handleClearLocalStorage = () => {
-    if (confirm('¿Estás seguro de que quieres limpiar completamente el almacenamiento local? Esto restaurará los datos iniciales.')) {
-      clearLocalStorage();
-      showNotification('Almacenamiento local limpiado', 'warning');
+  const handleClearLocalStorage = async () => {
+    if (confirm('¿Estás seguro de que quieres limpiar completamente el almacenamiento? Esto restaurará los datos iniciales.')) {
+      try {
+        await clearLocalStorage();
+        showNotification('Datos limpiados correctamente', 'warning');
+      } catch (error) {
+        showNotification('Error al limpiar los datos', 'error');
+      }
     }
   };
 
@@ -251,6 +315,9 @@ const AdministrationPanel = () => {
 
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
+                <span className="font-medium">Usuario:</span> {user?.email}
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
                 <span className="font-medium">Última actualización:</span>{' '}
                 {stats.lastUpdated !== 'Nunca' ? new Date(stats.lastUpdated).toLocaleString('es-ES') : 'Nunca'}
               </p>
@@ -261,13 +328,13 @@ const AdministrationPanel = () => {
     );
   };
 
-  // Pantalla de carga
-  if (isLoading) {
+  // Pantalla de carga para autenticación
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <div className="text-white text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>Cargando panel de administración...</p>
+          <p>{authLoading ? 'Verificando autenticación...' : 'Cargando panel de administración...'}</p>
         </div>
       </div>
     );
@@ -286,31 +353,53 @@ const AdministrationPanel = () => {
             <p className="text-gray-600">La Flecha Joyería</p>
           </div>
 
-          <div className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña de Administrador
+                <Mail className="w-4 h-4 inline mr-2" />
+                Email del Administrador
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                placeholder="admin@laflecha.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Lock className="w-4 h-4 inline mr-2" />
+                Contraseña
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="Ingresa la contraseña"
+                placeholder="••••••••"
+                required
               />
             </div>
 
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {loginError}
+              </div>
+            )}
+
             <button
-              onClick={handleLogin}
+              type="submit"
               className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
-              Acceder al Panel
+              Iniciar Sesión
             </button>
-          </div>
+          </form>
 
           <div className="mt-6 text-center text-sm text-gray-500">
-          
+            Sistema de autenticación segura con Firebase
           </div>
         </div>
 
@@ -319,7 +408,7 @@ const AdministrationPanel = () => {
     );
   }
 
-  // Panel de administración
+  // Panel de administración (resto del código igual...)
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header del Admin */}
@@ -332,7 +421,7 @@ const AdministrationPanel = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">Panel de Administración</h1>
-                <p className="text-gray-600">La Flecha Joyería</p>
+                <p className="text-gray-600">La Flecha Joyería - {user?.email}</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -354,7 +443,7 @@ const AdministrationPanel = () => {
                 onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
-                <X className="w-4 h-4" />
+                <LogOut className="w-4 h-4" />
                 <span>Cerrar Sesión</span>
               </button>
             </div>
