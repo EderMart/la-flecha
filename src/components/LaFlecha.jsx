@@ -84,7 +84,7 @@ const LaFlecha = () => {
         <div
           className="flecha-arrow text-yellow-400"
           style={{
-            animation: 'arrowSlide 1.5s ease-in-out 2.1s both'
+            animation: 'arrowSlide 1.5s ease-in-out 1.1s both'
           }}
         >
           <img src="/flecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
@@ -111,7 +111,7 @@ const LaFlecha = () => {
       
       .flecha-arrow {
         position: absolute;
-        left: -120px;
+        left: -150px;
         height: 35px;
         top: 43.5%;
       }
@@ -133,9 +133,9 @@ const LaFlecha = () => {
         }
         
         .flecha-arrow {
-          left: -140px;
+          left: -250px;
           height: 40px;
-          top: 47%;
+          top: 44.5%;
         }
       }
       
@@ -156,9 +156,9 @@ const LaFlecha = () => {
         }
         
         .flecha-arrow {
-          left: -160px;
+          left: -220px;
           height: 42px;
-          top: 47.5%;
+          top: 45%;
         }
       }
       
@@ -179,7 +179,7 @@ const LaFlecha = () => {
         }
         
         .flecha-arrow {
-          left: -200px;
+          left: -250px;
           height: 46px;
           top: 47%;
         }
@@ -221,60 +221,60 @@ const LaFlecha = () => {
       
       @keyframes arrowSlide {
         0% { transform: translateX(0); }
-        100% { transform: translateX(250px); }
+        100% { transform: translateX(280px); }
       }
       
       /* Animaciones para tablets pequeñas */
       @media (min-width: 641px) and (max-width: 768px) {
         @keyframes slideDownBounce {
-          0% { transform: translateY(-330px); }
+          0% { transform: translateY(-500px); }
           100% { transform: translateY(0px); }
         }
         
         @keyframes slideUpBounce {
-          0% { transform: translateY(330px); }
+          0% { transform: translateY(500px); }
           100% { transform: translateY(0px); }
         }
         
         @keyframes arrowSlide {
           0% { transform: translateX(0); }
-          100% { transform: translateX(310px); }
+          100% { transform: translateX(470px); }
         }
       }
       
       /* Animaciones para tablets medianas */
       @media (min-width: 769px) and (max-width: 1024px) {
         @keyframes slideDownBounce {
-          0% { transform: translateY(-360px); }
-          100() { transform: translateY(0px); }
+          0% { transform: translateY(-600px); }
+          100% { transform: translateY(0px); }
         }
         
         @keyframes slideUpBounce {
-          0% { transform: translateY(360px); }
+          0% { transform: translateY(600px); }
           100% { transform: translateY(0px); }
         }
         
         @keyframes arrowSlide {
           0% { transform: translateX(0); }
-          100% { transform: translateX(380px); }
+          100% { transform: translateX(440px); }
         }
       }
       
       /* Animaciones para tablets grandes y laptops pequeñas */
       @media (min-width: 1025px) and (max-width: 1279px) {
         @keyframes slideDownBounce {
-          0% { transform: translateY(-380px); }
+          0% { transform: translateY(-700px); }
           100% { transform: translateY(0px); }
         }
         
         @keyframes slideUpBounce {
-          0% { transform: translateY(380px); }
+          0% { transform: translateY(700px); }
           100% { transform: translateY(0px); }
         }
         
         @keyframes arrowSlide {
           0% { transform: translateX(0); }
-          100% { transform: translateX(460px); }
+          100% { transform: translateX(510px); }
         }
       }
       
