@@ -1,8 +1,15 @@
-// AdministrationPanel.jsx - REEMPLAZA tu archivo actual
+// AdministrationPanel.jsx - ACTUALIZADO con Productos Terminados y Disponibles
 import React, { useState, useEffect } from 'react';
 import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, RotateCcw, AlertCircle, BarChart3, Database, RefreshCw, Mail, Lock, LogOut } from 'lucide-react';
 import { useProducts } from './ProductContext';
 import { loginAdmin, logoutAdmin, useAuthState, isAdminUser } from '../../auth';
+
+const formatPrice = (p) => {
+  const n = Number(p);
+  if (!Number.isFinite(n)) return p ? String(p) : '';
+  return n.toLocaleString('es-CO'); // fuerza puntos como separador de miles
+};
+
 
 const AdministrationPanel = () => {
   const [showAdmin, setShowAdmin] = useState(false);
@@ -12,25 +19,30 @@ const AdministrationPanel = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('anillos');
+  const [productType, setProductType] = useState('terminados'); // 'terminados' o 'disponibles'
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [importData, setImportData] = useState('');
   const [notification, setNotification] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
-  
+
   // Estado de autenticación
   const { user, loading: authLoading } = useAuthState();
-  
+
   // Usar el contexto de productos
-  const { 
-    productos, 
+  const {
+    productos,
+    productosDisponibles,
     isLoading,
-    updateProduct, 
-    deleteProduct, 
-    addProduct, 
-    getNextId, 
-    resetProducts, 
-    exportProducts, 
+    updateProduct,
+    deleteProduct,
+    addProduct,
+    updateProductoDisponible,
+    deleteProductoDisponible,
+    addProductoDisponible,
+    getNextId,
+    resetProducts,
+    exportProducts,
     importProducts,
     clearLocalStorage,
     getStats,
@@ -59,14 +71,14 @@ const AdministrationPanel = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
-    
+
     if (!email || !password) {
       setLoginError('Por favor completa todos los campos');
       return;
     }
 
     const result = await loginAdmin(email, password);
-    
+
     if (result.success) {
       if (isAdminUser(result.user)) {
         setEmail('');
@@ -93,7 +105,7 @@ const AdministrationPanel = () => {
   };
 
   const handleEdit = (categoria, producto) => {
-    setEditingProduct({ categoria, ...producto });
+    setEditingProduct({ categoria, tipo: productType, ...producto });
   };
 
   const handleSave = async () => {
@@ -106,8 +118,13 @@ const AdministrationPanel = () => {
           descripcion: editingProduct.descripcion,
           imagen: editingProduct.imagen
         };
-        
-        await updateProduct(editingProduct.categoria, updatedProduct);
+
+        if (editingProduct.tipo === 'terminados') {
+          await updateProduct(editingProduct.categoria, updatedProduct);
+        } else {
+          await updateProductoDisponible(editingProduct.categoria, updatedProduct);
+        }
+
         await markLastUpdated();
         showNotification('Producto actualizado correctamente');
         setEditingProduct(null);
@@ -120,7 +137,12 @@ const AdministrationPanel = () => {
   const handleDelete = async (categoria, id) => {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
       try {
-        await deleteProduct(categoria, id);
+        if (productType === 'terminados') {
+          await deleteProduct(categoria, id);
+        } else {
+          await deleteProductoDisponible(categoria, id);
+        }
+
         await markLastUpdated();
         showNotification('Producto eliminado correctamente', 'warning');
       } catch (error) {
@@ -133,6 +155,7 @@ const AdministrationPanel = () => {
     const newId = getNextId();
     setEditingProduct({
       categoria: activeCategory,
+      tipo: productType,
       id: newId,
       titulo: '',
       precio: '',
@@ -151,8 +174,13 @@ const AdministrationPanel = () => {
           descripcion: editingProduct.descripcion,
           imagen: editingProduct.imagen || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop'
         };
-        
-        await addProduct(editingProduct.categoria, newProduct);
+
+        if (editingProduct.tipo === 'terminados') {
+          await addProduct(editingProduct.categoria, newProduct);
+        } else {
+          await addProductoDisponible(editingProduct.categoria, newProduct);
+        }
+
         await markLastUpdated();
         setEditingProduct(null);
         showNotification('Producto agregado correctamente');
@@ -219,7 +247,10 @@ const AdministrationPanel = () => {
     }
   };
 
-  const filteredProducts = productos[activeCategory]?.filter(producto =>
+  // Obtener productos según el tipo seleccionado
+  const currentProducts = productType === 'terminados' ? productos : productosDisponibles;
+
+  const filteredProducts = currentProducts[activeCategory]?.filter(producto =>
     producto.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
@@ -235,8 +266,8 @@ const AdministrationPanel = () => {
   const Notification = ({ notification }) => {
     if (!notification) return null;
 
-    const bgColor = notification.type === 'success' ? 'bg-green-500' : 
-                   notification.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500';
+    const bgColor = notification.type === 'success' ? 'bg-green-500' :
+      notification.type === 'warning' ? 'bg-yellow-500' : 'bg-red-500';
 
     return (
       <div className={`fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300`}>
@@ -251,7 +282,7 @@ const AdministrationPanel = () => {
   // Componente de estadísticas
   const StatsModal = () => {
     const stats = getStats();
-    
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
@@ -266,50 +297,80 @@ const AdministrationPanel = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-600 text-sm font-medium">Total de Productos</p>
+                    <p className="text-blue-600 text-sm font-medium">Productos Terminados</p>
                     <p className="text-3xl font-bold text-blue-800">{stats.totalProducts}</p>
                   </div>
                   <BarChart3 className="w-8 h-8 text-blue-500" />
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-600 text-sm font-medium">Categorías Activas</p>
-                    <p className="text-3xl font-bold text-green-800">{categories.length}</p>
+                    <p className="text-purple-600 text-sm font-medium">Productos Disponibles</p>
+                    <p className="text-3xl font-bold text-purple-800">
+                      {Object.values(productosDisponibles).reduce((total, cat) => total + (cat?.length || 0), 0)}
+                    </p>
                   </div>
-                  <Database className="w-8 h-8 text-green-500" />
+                  <Database className="w-8 h-8 text-purple-500" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos por Categoría</h3>
-              <div className="space-y-3">
-                {stats.categoriesCount.map(({ category, count }) => {
-                  const categoryName = categories.find(cat => cat.key === category)?.name || category;
-                  const percentage = (count / stats.totalProducts) * 100;
-                  
-                  return (
-                    <div key={category} className="flex items-center justify-between">
-                      <span className="text-gray-700 font-medium">{categoryName}</span>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-amber-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${percentage}%` }}
-                          ></div>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por Categoría</h3>
+                <div className="space-y-3">
+                  {stats.categoriesCount.map(({ category, count }) => {
+                    const categoryName = categories.find(cat => cat.key === category)?.name || category;
+                    const percentage = (count / stats.totalProducts) * 100;
+
+                    return (
+                      <div key={category} className="flex items-center justify-between">
+                        <span className="text-gray-700 font-medium">{categoryName}</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-gray-600 text-sm w-12 text-right">{count}</span>
                         </div>
-                        <span className="text-gray-600 text-sm w-12 text-right">{count}</span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por Categoría</h3>
+                <div className="space-y-3">
+                  {categories.map((category) => {
+                    const count = productosDisponibles[category.key]?.length || 0;
+                    const totalDisponibles = Object.values(productosDisponibles).reduce((total, cat) => total + (cat?.length || 0), 0);
+                    const percentage = totalDisponibles > 0 ? (count / totalDisponibles) * 100 : 0;
+
+                    return (
+                      <div key={category.key} className="flex items-center justify-between">
+                        <span className="text-gray-700 font-medium">{category.name}</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-32 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-gray-600 text-sm w-12 text-right">{count}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -408,7 +469,7 @@ const AdministrationPanel = () => {
     );
   }
 
-  // Panel de administración (resto del código igual...)
+  // Panel de administración
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header del Admin */}
@@ -454,70 +515,93 @@ const AdministrationPanel = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Controles principales */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            {/* Categorías */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category.key}
-                  onClick={() => setActiveCategory(category.key)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-                    activeCategory === category.key
-                      ? 'bg-amber-500 text-black'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category.name} ({productos[category.key]?.length || 0})
-                </button>
-              ))}
-            </div>
-
-            {/* Controles de vista y acciones */}
-            <div className="flex space-x-4">
-              {/* Selector de vista */}
+          <div className="flex flex-col space-y-4">
+            {/* Selector de tipo de productos */}
+            <div className="flex justify-center">
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
-                  onClick={() => setViewMode('grid')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    viewMode === 'grid'
-                      ? 'bg-white text-gray-800 shadow-sm'
+                  onClick={() => setProductType('terminados')}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
+                      ? 'bg-blue-500 text-white shadow-md'
                       : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
-                  Grid
+                  Productos Terminados
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-1 rounded-md transition-colors duration-200 ${
-                    viewMode === 'list'
-                      ? 'bg-white text-gray-800 shadow-sm'
+                  onClick={() => setProductType('disponibles')}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
+                      ? 'bg-purple-500 text-white shadow-md'
                       : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
-                  Lista
+                  Productos Disponibles
                 </button>
               </div>
+            </div>
 
-              {/* Buscador */}
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-64"
-                />
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              {/* Categorías */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.key}
+                    onClick={() => setActiveCategory(category.key)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeCategory === category.key
+                        ? (productType === 'terminados' ? 'bg-blue-500' : 'bg-purple-500') + ' text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                  >
+                    {category.name} ({currentProducts[category.key]?.length || 0})
+                  </button>
+                ))}
               </div>
 
-              {/* Botón agregar */}
-              <button
-                onClick={handleAddNew}
-                className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Agregar</span>
-              </button>
+              {/* Controles de vista y acciones */}
+              <div className="flex space-x-4">
+                {/* Selector de vista */}
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`px-3 py-1 rounded-md transition-colors duration-200 ${viewMode === 'grid'
+                        ? 'bg-white text-gray-800 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                  >
+                    Grid
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-3 py-1 rounded-md transition-colors duration-200 ${viewMode === 'list'
+                        ? 'bg-white text-gray-800 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                  >
+                    Lista
+                  </button>
+                </div>
+
+                {/* Buscador */}
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-64"
+                  />
+                </div>
+
+                {/* Botón agregar */}
+                <button
+                  onClick={handleAddNew}
+                  className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Agregar</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -550,12 +634,19 @@ const AdministrationPanel = () => {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
+                  <div className="absolute top-2 left-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${productType === 'terminados' ? 'bg-blue-500 text-white' : 'bg-purple-500 text-white'
+                      }`}>
+                      {productType === 'terminados' ? 'Terminado' : 'Disponible'}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">{producto.titulo}</h3>
-                    <span className="text-xl font-bold text-amber-600 ml-2">{producto.precio}</span>
+                    <span className="text-xl font-bold text-amber-600 ml-2">${formatPrice(producto.precio)}</span>
+
                   </div>
                   <p className="text-gray-600 text-sm line-clamp-3">{producto.descripcion}</p>
                   <div className="mt-3 text-xs text-gray-400">
@@ -571,6 +662,7 @@ const AdministrationPanel = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
@@ -581,28 +673,45 @@ const AdministrationPanel = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredProducts.map((producto) => (
-                    <tr key={producto.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{producto.id}</td>
+                    <tr key={// Continuación del código que faltaba - AGREGAR después de la línea: {filteredProducts.map((producto) => (
+                      //                     <tr key={
+
+                      producto.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${productType === 'terminados' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                          }`}>
+                          {productType === 'terminados' ? 'Terminado' : 'Disponible'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {producto.id}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img
                           src={producto.imagen}
                           alt={producto.titulo}
-                          className="w-12 h-12 object-cover rounded-lg"
+                          className="w-12 h-12 rounded-lg object-cover"
                           onError={(e) => {
                             e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
                           }}
                         />
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 max-w-xs truncate">{producto.titulo}</div>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
+                          {producto.titulo}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-amber-600">{producto.precio}</div>
+                        <div className="text-sm font-bold text-amber-600">
+  ${formatPrice(producto.precio)}
+</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600 max-w-xs truncate">{producto.descripcion}</div>
+                        <div className="text-sm text-gray-500 max-w-xs line-clamp-2">
+                          {producto.descripcion}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEdit(activeCategory, producto)}
@@ -626,27 +735,40 @@ const AdministrationPanel = () => {
           </div>
         )}
 
+        {/* Mensaje cuando no hay productos */}
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
-              <Search className="w-16 h-16 mx-auto" />
+              <Database className="w-16 h-16 mx-auto" />
             </div>
-            <p className="text-gray-500 text-lg">No se encontraron productos</p>
-            <p className="text-gray-400 text-sm mt-2">
-              {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Agrega algunos productos para comenzar'}
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No hay productos {productType === 'terminados' ? 'terminados' : 'disponibles'}
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {searchTerm ?
+                `No se encontraron productos que coincidan con "${searchTerm}"` :
+                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categoría ${categories.find(cat => cat.key === activeCategory)?.name}`
+              }
             </p>
+            <button
+              onClick={handleAddNew}
+              className="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-auto"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Agregar primer producto</span>
+            </button>
           </div>
         )}
       </div>
 
-      {/* Modal de edición */}
+      {/* Modal de edición/agregar producto */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {editingProduct.titulo ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+                  {editingProduct.titulo ? 'Editar Producto' : 'Nuevo Producto'}
                 </h2>
                 <button
                   onClick={() => setEditingProduct(null)}
@@ -657,45 +779,85 @@ const AdministrationPanel = () => {
               </div>
 
               <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipo de Producto
+                    </label>
+                    <div className="flex bg-gray-100 rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditingProduct({ ...editingProduct, tipo: 'terminados' })}
+                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'terminados'
+                            ? 'bg-blue-500 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                      >
+                        Terminado
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingProduct({ ...editingProduct, tipo: 'disponibles' })}
+                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'disponibles'
+                            ? 'bg-purple-500 text-white shadow-sm'
+                            : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                      >
+                        Disponible
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ID del Producto
+                    </label>
+                    <input
+                      type="number"
+                      value={editingProduct.id}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      min="1"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Título *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Título *
+                  </label>
                   <input
                     type="text"
                     value={editingProduct.titulo}
-                    onChange={(e) => setEditingProduct({...editingProduct, titulo: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, titulo: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="Nombre del producto"
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Precio *
+                  </label>
                   <input
                     type="text"
                     value={editingProduct.precio}
-                    onChange={(e) => setEditingProduct({...editingProduct, precio: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, precio: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    placeholder="Ej: $1,500"
+                    placeholder="$0,000"
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                  <textarea
-                    value={editingProduct.descripcion}
-                    onChange={(e) => setEditingProduct({...editingProduct, descripcion: e.target.value})}
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    placeholder="Descripción detallada del producto"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">URL de la Imagen</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL de la Imagen
+                  </label>
                   <input
                     type="url"
                     value={editingProduct.imagen}
-                    onChange={(e) => setEditingProduct({...editingProduct, imagen: e.target.value})}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, imagen: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="https://ejemplo.com/imagen.jpg"
                   />
@@ -704,39 +866,43 @@ const AdministrationPanel = () => {
                       <img
                         src={editingProduct.imagen}
                         alt="Vista previa"
-                        className="w-32 h-32 object-cover rounded-lg border"
+                        className="w-32 h-32 object-cover rounded-lg"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
                         }}
                       />
                     </div>
                   )}
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Categoría:</span> {categories.find(cat => cat.key === editingProduct.categoria)?.name}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    <span className="font-medium">ID:</span> {editingProduct.id}
-                  </p>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                  </label>
+                  <textarea
+                    value={editingProduct.descripcion}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, descripcion: e.target.value })}
+                    rows="4"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Descripción del producto..."
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4 mt-8">
+              <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setEditingProduct(null)}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
-                  Cancelar
+                  <X className="w-5 h-5" />
+                  <span>Cancelar</span>
                 </button>
                 <button
-                  onClick={editingProduct.titulo && !editingProduct.id ? handleAddNewProduct : handleSave}
-                  disabled={!editingProduct.titulo || !editingProduct.precio}
-                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-black rounded-lg transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={editingProduct.titulo ? handleSave : handleAddNewProduct}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{editingProduct.titulo && editingProduct.id ? 'Guardar Cambios' : 'Agregar Producto'}</span>
+                  <Save className="w-5 h-5" />
+                  <span>{editingProduct.titulo ? 'Guardar Cambios' : 'Crear Producto'}</span>
                 </button>
               </div>
             </div>
@@ -747,7 +913,7 @@ const AdministrationPanel = () => {
       {/* Modal de Backup */}
       {showBackupModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Gestión de Datos</h2>
@@ -759,70 +925,62 @@ const AdministrationPanel = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Exportar datos */}
-                <div className="bg-green-50 p-6 rounded-xl border border-green-200">
-                  <h3 className="text-lg font-semibold text-green-800 mb-3">Exportar Datos</h3>
-                  <p className="text-green-700 mb-4 text-sm">
-                    Descarga una copia de seguridad de todos los productos en formato JSON.
-                  </p>
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-blue-800 mb-4">Exportar Datos</h3>
+                  <p className="text-blue-600 mb-4">Descarga una copia de seguridad de todos los productos en formato JSON.</p>
                   <button
                     onClick={handleExportData}
-                    className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-5 h-5" />
                     <span>Descargar Backup</span>
                   </button>
                 </div>
 
                 {/* Importar datos */}
-                <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                  <h3 className="text-lg font-semibold text-blue-800 mb-3">Importar Datos</h3>
-                  <p className="text-blue-700 mb-4 text-sm">
-                    Restaura los productos desde un archivo de respaldo JSON. Esto reemplazará todos los datos actuales.
-                  </p>
+                <div className="bg-green-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-green-800 mb-4">Importar Datos</h3>
+                  <p className="text-green-600 mb-4">Restaura los productos desde un archivo de respaldo JSON.</p>
                   <textarea
                     value={importData}
                     onChange={(e) => setImportData(e.target.value)}
-                    rows={8}
-                    className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
-                    placeholder="Pega aquí el contenido JSON del archivo de respaldo..."
+                    placeholder="Pega aquí el contenido JSON del backup..."
+                    rows="6"
+                    className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 mb-4"
                   />
                   <button
                     onClick={handleImportData}
-                    className="bg-blue-500 hover:bg-blue-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="w-full bg-green-500 hover:bg-green-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
-                    <Upload className="w-4 h-4" />
+                    <Upload className="w-5 h-5" />
                     <span>Importar Datos</span>
                   </button>
                 </div>
 
                 {/* Restaurar datos iniciales */}
-                <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-3">Restaurar Datos Iniciales</h3>
-                  <p className="text-yellow-700 mb-4 text-sm">
-                    Restaura todos los productos a los valores iniciales del sistema. Esta acción no se puede deshacer.
-                  </p>
+                <div className="bg-yellow-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-yellow-800 mb-4">Restaurar Datos Iniciales</h3>
+                  <p className="text-yellow-600 mb-4">Restaura todos los productos a los valores predeterminados del sistema.</p>
                   <button
                     onClick={handleResetData}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>Restaurar Iniciales</span>
+                    <RotateCcw className="w-5 h-5" />
+                    <span>Restaurar Datos</span>
                   </button>
                 </div>
 
                 {/* Limpiar almacenamiento */}
-                <div className="bg-red-50 p-6 rounded-xl border border-red-200">
-                  <h3 className="text-lg font-semibold text-red-800 mb-3">Limpiar Almacenamiento</h3>
-                  <p className="text-red-700 mb-4 text-sm">
-                    Elimina completamente todos los datos almacenados y restaura los valores iniciales. Usar solo para solucionar problemas.
-                  </p>
+                <div className="bg-red-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-red-800 mb-4">Limpiar Almacenamiento</h3>
+                  <p className="text-red-600 mb-4">Elimina completamente todos los datos almacenados y restaura los valores iniciales.</p>
                   <button
                     onClick={handleClearLocalStorage}
-                    className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                    className="w-full bg-red-500 hover:bg-red-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
                     <span>Limpiar Todo</span>
                   </button>
                 </div>
@@ -835,7 +993,7 @@ const AdministrationPanel = () => {
       {/* Modal de estadísticas */}
       {showStatsModal && <StatsModal />}
 
-      {/* Notificaciones */}
+      {/* Notificación */}
       <Notification notification={notification} />
     </div>
   );

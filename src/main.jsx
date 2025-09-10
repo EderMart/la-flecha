@@ -12,8 +12,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ProductProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ProductProvider>
         <Routes>
           {/* Ruta principal con Header, App y Footer */}
           <Route 
@@ -26,11 +26,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               </>
             } 
           />
-          
+
           {/* Ruta del admin sin Header ni Footer */}
-          <Route path="/AdministrationPanel" element={<AdministrationPanel/>} />
+          <Route path="/AdministrationPanel" element={<AdministrationPanel />} />
         </Routes>
-      </BrowserRouter>
-    </ProductProvider>
+      </ProductProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
