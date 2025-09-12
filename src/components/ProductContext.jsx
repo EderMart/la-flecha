@@ -15,86 +15,10 @@ const ProductContext = createContext();
 
 // ✅ Datos iniciales (si Firebase está vacío)
 const INITIAL_PRODUCTS = {
-  anillos: [
-    {
-      id: 1,
-      titulo: "Anillo de Compromiso Diamante",
-      precio: "$2,500",
-      descripcion:
-        "Hermoso anillo de compromiso con diamante central de 1 quilate, engastado en oro blanco de 18k. Diseño clásico y elegante.",
-      imagen:
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop",
-    },
-    {
-      id: 2,
-      titulo: "Anillo de Oro Rosa",
-      precio: "$1,800",
-      descripcion:
-        "Anillo moderno de oro rosa de 14k con detalles únicos. Perfecto para uso diario con un toque de elegancia.",
-      imagen:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop",
-    },
-  ],
-  collares: [
-    {
-      id: 3,
-      titulo: "Collar de Perlas Clásico",
-      precio: "$1,200",
-      descripcion:
-        "Collar de perlas naturales cultivadas, con broche de oro amarillo. Elegancia atemporal para ocasiones especiales.",
-      imagen:
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
-    },
-    {
-      id: 4,
-      titulo: "Collar con Colgante Corazón",
-      precio: "$950",
-      descripcion:
-        "Delicado collar de oro blanco con colgante en forma de corazón adornado con pequeños diamantes.",
-      imagen:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop",
-    },
-  ],
-  aretes: [
-    {
-      id: 5,
-      titulo: "Aretes de Diamante",
-      precio: "$3,200",
-      descripcion:
-        "Aretes de presión con diamantes de corte redondo, engastados en oro blanco de 18k. Brillo excepcional.",
-      imagen:
-        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop",
-    },
-    {
-      id: 6,
-      titulo: "Aretes Colgantes Plata",
-      precio: "$480",
-      descripcion:
-        "Aretes colgantes de plata esterlina 925 con diseño geométrico moderno. Livianos y cómodos.",
-      imagen:
-        "https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=400&h=400&fit=crop",
-    },
-  ],
-  pulseras: [
-    {
-      id: 7,
-      titulo: "Pulsera Tennis Diamantes",
-      precio: "$4,500",
-      descripcion:
-        "Pulsera tennis con diamantes engastados en oro blanco. Diseño clásico que nunca pasa de moda.",
-      imagen:
-        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop",
-    },
-    {
-      id: 8,
-      titulo: "Pulsera de Oro Amarillo",
-      precio: "$1,350",
-      descripcion:
-        "Pulsera de eslabones de oro amarillo de 14k. Perfecta para combinar con otras joyas.",
-      imagen:
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
-    },
-  ],
+  anillos: [],
+  collares: [],
+  aretes: [],
+  pulseras: [],
 };
 
 // ✅ Inicial vacío para disponibles

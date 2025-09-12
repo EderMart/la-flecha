@@ -522,8 +522,8 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('terminados')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-gray-600 hover:text-gray-800'
+                      ? 'bg-blue-500 text-gray-400 shadow-md'
+                      : 'text-gray-400 hover:text-gray-800'
                     }`}
                 >
                   Productos Terminados
@@ -531,7 +531,7 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('disponibles')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
-                      ? 'bg-purple-500 text-white shadow-md'
+                      ? 'bg-purple-500 text-gray-400 shadow-md'
                       : 'text-gray-600 hover:text-gray-800'
                     }`}
                 >
