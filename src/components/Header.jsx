@@ -31,14 +31,14 @@ export default function Header() {
 
           {/* Botón para mobil */}
           <button 
-            className="md:hidden p-2"
+            className="md:hidden p-2 text-gray-400"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
             {isMenuOpen ? (
-              <X className="h-6 w-6 text-white" />
+              <X className="h-6 w-6 text-gray-400" />
             ) : (
-              <Menu className="h-6 w-6 text-white" />
+              <Menu className="h-6 w-6 text-gray-400" />
             )}
           </button>
         </div>

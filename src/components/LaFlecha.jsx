@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Star, Shield, Award, Menu, X, RefreshCw, Grid3X3, List } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Shield, Award, Menu, X, RefreshCw, Grid3X3, List, Truck } from 'lucide-react';
 import "tailwindcss";
 import { Link } from 'react-router-dom';
 import { useProducts } from './ProductContext';
@@ -38,9 +38,10 @@ const LaFlecha = () => {
 
   // Efecto para manejar la animación del splash screen
   useEffect(() => {
+    // Mostrar splash un tiempo corto mientras carga (ajusta ms si quieres)
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 4500); // 4.5 segundos para que termine la animación
+    }, 1200); // 1.2 segundos
 
     return () => clearTimeout(timer);
   }, []);
@@ -70,244 +71,71 @@ const LaFlecha = () => {
     };
   }, [productos]);
 
-  // Componente del Splash Screen con la animación mejorada (responsive de Versión 1)
+  // Nuevo SplashScreen: imagen del logo + un anillo giratorio alrededor que indica carga
   const SplashScreen = () => (
-    <div className="fixed inset-0 bg-white flex justify-center items-center font-sans overflow-hidden z-50">
-      <div className="relative w-full max-w-[600px] h-[400px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* L */}
-        <div
-          className="letra-l text-6xl font-bold text-amber-600 flex items-center justify-center"
-          style={{
-            animation: 'slideDownBounce 1.2s ease-out 0.5s both'
-          }}
-        >
-          <img src="/letral.svg" alt="logo la flecha" className="w-full h-full object-contain " />
+    <div className="fixed inset-0 bg-white flex flex-col justify-center items-center font-sans overflow-hidden z-50">
+      <div className="flex flex-col items-center">
+        {/* Container principal del logo y círculo */}
+        <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center">
+
+          {/* Logo centrado - SIEMPRE en el centro */}
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <img
+              src="/Logolaflecha.svg"
+              alt="Logo La Flecha"
+              className="w-16 h-16 md:w-20 md:h-20 object-contain"
+            />
+          </div>
+
+          {/* Círculo de carga giratorio principal */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ animation: 'spin 1.5s linear infinite' }}
+          >
+            <div
+              style={{
+                width: '120px',
+                height: '120px',
+                borderRadius: '50%',
+                borderWidth: '4px',
+                borderStyle: 'solid',
+                borderTopColor: '#f59e0b', // amber-500
+                borderRightColor: 'transparent',
+                borderBottomColor: 'transparent',
+                borderLeftColor: 'transparent'
+              }}
+            />
+          </div>
+
+          {/* Círculo exterior adicional */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ animation: 'spin 2s linear infinite reverse' }}
+          >
+            <div
+              style={{
+                width: '140px',
+                height: '140px',
+                borderRadius: '50%',
+                borderWidth: '2px',
+                borderStyle: 'solid',
+                borderTopColor: '#fbbf24', // amber-400
+                borderRightColor: 'transparent',
+                borderBottomColor: 'transparent',
+                borderLeftColor: 'transparent'
+              }}
+            />
+          </div>
         </div>
 
-        {/* F */}
-        <div
-          className="letra-f text-6xl font-bold text-amber-600 flex items-center justify-center"
-          style={{
-            animation: 'slideUpBounce 1.2s ease-out 1.3s both'
-          }}
-        >
-          <img src="/letraf.svg" alt="logo la flecha" className="w-full h-full object-contain" />
-        </div>
-
-        {/* Flecha */}
-        <div
-          className="flecha-arrow text-yellow-400"
-          style={{
-            animation: 'arrowSlide 1.5s ease-in-out 1.1s both'
-          }}
-        >
-          <img src="/flecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
-        </div>
+        <p className="mt-6 text-gray-600 text-sm animate-pulse">Cargando...</p>
       </div>
 
-      <style >{`
-      /* Estilos base para móvil (320px - 640px) */
-      .letra-l {
-        position: absolute;
-        width: 80px;
-        height: 100px;
-        left: 35%;
-        top: 35%;
-      }
-      
-      .letra-f {
-        position: absolute;
-        width: 100px;
-        height: 110px;
-        right: 30%;
-        top: 35%;
-      }
-      
-      .flecha-arrow {
-        position: absolute;
-        left: -150px;
-        height: 35px;
-        top: 43.5%;
-      }
-
-      /* Tablets pequeñas (641px - 768px) */
-      @media (min-width: 641px) and (max-width: 768px) {
-        .letra-l {
-          width: 90px;
-          height: 115px;
-          left: 37%;
-          top: 35%;
-        }
-        
-        .letra-f {
-          width: 115px;
-          height: 128px;
-          right: 32%;
-          top: 35%;
-        }
-        
-        .flecha-arrow {
-          left: -250px;
-          height: 40px;
-          top: 44.5%;
-        }
-      }
-      
-      /* Tablets medianas (769px - 1024px) */
-      @media (min-width: 769px) and (max-width: 1024px) {
-        .letra-l {
-          width: 95px;
-          height: 120px;
-          left: 38%;
-          top: 35%;
-        }
-        
-        .letra-f {
-          width: 120px;
-          height: 133px;
-          right: 33%;
-          top: 35%;
-        }
-        
-        .flecha-arrow {
-          left: -220px;
-          height: 42px;
-          top: 45%;
-        }
-      }
-      
-      /* Tablets grandes y laptops pequeñas (1025px - 1279px) */
-      @media (min-width: 1025px) and (max-width: 1279px) {
-        .letra-l {
-          width: 105px;
-          height: 130px;
-          left: 36%;
-          top: 32%;
-        }
-        
-        .letra-f {
-          width: 130px;
-          height: 143px;
-          right: 31%;
-          top: 32%;
-        }
-        
-        .flecha-arrow {
-          left: -250px;
-          height: 46px;
-          top: 47%;
-        }
-      }
-      
-      /* Pantallas grandes (1280px+) */
-      @media (min-width: 1280px) {
-        .letra-l {
-          width: 120px;
-          height: 150px;
-          left: 185px;
-          top: 140px;
-        }
-        
-        .letra-f {
-          width: 150px;
-          height: 166px;
-          right: 193px;
-          top: 140px;
-        }
-        
-        .flecha-arrow {
-          left: -599px;
-          height: 51px;
-          top: 48%;
-        }
-      }
-
-      /* Animaciones para móvil */
-      @keyframes slideDownBounce {
-        0% { transform: translateY(-300px); }
-        100% { transform: translateY(0px); }
-      }
-      
-      @keyframes slideUpBounce {
-        0% { transform: translateY(300px); }
-        100% { transform: translateY(0px); }
-      }
-      
-      @keyframes arrowSlide {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(280px); }
-      }
-      
-      /* Animaciones para tablets pequeñas */
-      @media (min-width: 641px) and (max-width: 768px) {
-        @keyframes slideDownBounce {
-          0% { transform: translateY(-500px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes slideUpBounce {
-          0% { transform: translateY(500px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(470px); }
-        }
-      }
-      
-      /* Animaciones para tablets medianas */
-      @media (min-width: 769px) and (max-width: 1024px) {
-        @keyframes slideDownBounce {
-          0% { transform: translateY(-600px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes slideUpBounce {
-          0% { transform: translateY(600px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(440px); }
-        }
-      }
-      
-      /* Animaciones para tablets grandes y laptops pequeñas */
-      @media (min-width: 1025px) and (max-width: 1279px) {
-        @keyframes slideDownBounce {
-          0% { transform: translateY(-700px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes slideUpBounce {
-          0% { transform: translateY(700px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(510px); }
-        }
-      }
-      
-      /* Animaciones para pantallas grandes */
-      @media (min-width: 1280px) {
-        @keyframes slideDownBounce {
-          0% { transform: translateY(-450px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes slideUpBounce {
-          0% { transform: translateY(400px); }
-          100% { transform: translateY(0px); }
-        }
-        
-        @keyframes arrowSlide {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(780px); }
-        }
+      {/* CSS para la animación */}
+      <style jsx>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
     `}</style>
     </div>
@@ -349,17 +177,17 @@ const LaFlecha = () => {
             {/* Botón cerrar */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
+              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-400 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-10"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Imagen del producto */}
-            <div className="h-80 overflow-hidden rounded-t-2xl">
+            <div className="h-80 bg-gray-50 overflow-hidden rounded-t-2xl flex items-center justify-center p-6">
               <img
                 src={selectedProduct.imagen}
                 alt={selectedProduct.titulo}
-                className="w-full h-full object-cover"
+                className="max-w-[400px] max-h-[300px] object-contain rounded-lg shadow-lg"
                 onError={(e) => {
                   e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
                 }}
@@ -385,11 +213,11 @@ const LaFlecha = () => {
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-center">
                         <Star className="w-4 h-4 text-amber-500 mr-2" />
-                        Calidad premium
+                        Oro 18k
                       </li>
                       <li className="flex items-center">
                         <Shield className="w-4 h-4 text-amber-500 mr-2" />
-                        Garantía en todos los productos
+                        Garantía de por vida
                       </li>
                       <li className="flex items-center">
                         <Award className="w-4 h-4 text-amber-500 mr-2" />
@@ -401,9 +229,8 @@ const LaFlecha = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Detalles</h3>
                     <div className="space-y-2 text-gray-600">
-                      <p><span className="font-medium">Código:</span> LF-{selectedProduct.id.toString().padStart(3, '0')}</p>
-                      <p><span className="font-medium">Disponibilidad:</span> En stock</p>
-                      <p><span className="font-medium">Envío:</span> Gratis a nivel nacional</p>
+                      <p><span className="font-medium">Disponibilidad:</span> Entrega inmediata</p>
+                      <p><span className="font-medium">Envío:</span> A nivel nacional</p>
                     </div>
                   </div>
                 </div>
@@ -416,7 +243,7 @@ const LaFlecha = () => {
                     rel="noopener noreferrer"
                     className="flex-1 "
                   >
-                    <button className="w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2">
+                    <button className="w-full bg-gray-400 hover:bg-green-600 text-gray-400 px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
                       </svg>
@@ -425,10 +252,11 @@ const LaFlecha = () => {
                   </a>
                   <button
                     onClick={closeModal}
-                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+                    className="flex-1 bg-gray-400 hover:bg-gray-300 text-gray-400 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
                   >
                     Cerrar
                   </button>
+
                 </div>
               </div>
             </div>
@@ -456,7 +284,7 @@ const LaFlecha = () => {
             <p className="text-gray-400 text-sm mt-2">en {titulo.toLowerCase()}</p>
             <div className="mt-4 px-4 py-2 bg-amber-100 rounded-lg">
               <p className="text-amber-700 text-xs text-center">
-                Los productos aparecerán aquí automáticamente cuando se agreguen desde el admin
+                Los productos aparecerán aquí automáticamente cuando se agreguen
               </p>
             </div>
           </div>
@@ -473,11 +301,11 @@ const LaFlecha = () => {
     return (
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
         <div className="relative">
-          <div className="h-80 overflow-hidden">
+          <div className="h-64 overflow-hidden rounded-t-2xl flex items-center justify-center bg-gray-100"> {/* Línea modificada */}
             <img
               src={currentItem.imagen}
               alt={currentItem.titulo}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              className="w-auto h-60 max-w-full object-contain transition-transform duration-500 hover:scale-110"
               onError={(e) => {
                 e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
               }}
@@ -491,14 +319,14 @@ const LaFlecha = () => {
             <>
               <button
                 onClick={() => prevSlide(categoria)}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-grey-black p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
               <button
                 onClick={() => nextSlide(categoria)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-grey-black p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -537,7 +365,7 @@ const LaFlecha = () => {
                 {items.map((_, index) => (
                   <div
                     key={index}
-                    className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentIndex ? 'bg-amber-500' : 'bg-gray-300'
+                    className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentIndex ? 'bg-amber-400' : 'bg-gray-400'
                       }`}
                   />
                 ))}
@@ -545,7 +373,7 @@ const LaFlecha = () => {
             )}
             <button
               onClick={() => openModal(currentItem)}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-full transition-all duration-200 transform hover:scale-105 font-medium"
+              className="bg-amber-600 hover:bg-amber-400 text-grey-400 px-6 py-2 rounded-full transition-all duration-200 transform hover:scale-105 font-medium"
             >
               Ver Detalles
             </button>
@@ -645,7 +473,8 @@ const LaFlecha = () => {
             rel="noopener noreferrer"
             className="inline-block"
           >
-            <button className="group relative bg-white hover:bg-green-600 text-white px-6 py-3 rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3">
+            <button className="group relative bg-white hover:bg-green-600 text-gray-400 hover:text-gray-400 px-6 py-3 rounded-full text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3">
+
               {/* Efecto de onda al hover */}
               <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-full transition-opacity duration-300"></div>
 
@@ -680,34 +509,43 @@ const LaFlecha = () => {
       </section>
 
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Award className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Calidad Premium</h3>
-              <p className="text-gray-600">Materiales de la más alta calidad</p>
-            </div>
+  <div className="max-w-6xl mx-auto px-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Shield className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Garantía Vitalicia</h3>
-              <p className="text-gray-600">Protección completa en tus joyas</p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
-                <Star className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Diseño Exclusivo</h3>
-              <p className="text-gray-600">Piezas únicas y personalizadas</p>
-            </div>
-          </div>
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Award className="w-8 h-8 text-amber-600" />
         </div>
-      </section>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Calidad Premium</h3>
+        <p className="text-gray-600">Materiales de la más alta calidad</p>
+      </div>
+
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Shield className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Garantía de por vida</h3>
+        <p className="text-gray-600">Protección completa en tus joyas</p>
+      </div>
+
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Truck className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Envíos Nacionales</h3>
+        <p className="text-gray-600">Envios en todo el país</p>
+      </div>
+
+      <div className="text-center group">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+          <Star className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Diseño Exclusivo</h3>
+        <p className="text-gray-600">Piezas únicas y personalizadas</p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Productos */}
       <section id="productos" className="py-20 bg-gradient-to-b from-gray-50 to-white">
@@ -729,18 +567,18 @@ const LaFlecha = () => {
               <button
                 onClick={() => setActiveTab('terminados')}
                 className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === 'terminados'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-gray-200 text-gray-700'
+                  ? 'bg-gray-400 text-gray-400'
+                  : 'bg-gray-400 text-gray-400d'
                   }`}
               >
-                Terminados
+                Trabajos personalizados
               </button>
 
               <button
                 onClick={() => setActiveTab('disponibles')}
                 className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === 'disponibles'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-gray-200 text-gray-400'
+                  ? 'bg-gray-400 text-gray-400'
+                  : 'bg-gray-400 text-gray-400d'
                   }`}
               >
                 Disponibles
@@ -753,8 +591,8 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-md transition-all duration-200 ${viewMode === 'grid'
-                  ? 'bg-amber-500 text-white shadow-md'
-                  : 'text-gray-400 hover:text-gray-800'
+                  ? 'bg-gray-400 text-gray-400'
+                  : 'bg-gray-400 text-gray-400d'
                   }`}
               >
                 <Grid3X3 className="w-5 h-5" />
@@ -762,8 +600,8 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-md transition-all duration-200 ${viewMode === 'list'
-                  ? 'bg-amber-500 text-white shadow-md'
-                  : 'text-gray-400 hover:text-gray-800'
+                  ? 'bg-gray-400 text-gray-400'
+                  : 'bg-gray-400 text-gray-400d'
                   }`}
               >
                 <List className="w-5 h-5" />
