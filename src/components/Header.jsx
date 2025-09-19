@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
@@ -9,68 +8,93 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 w-full">
-      <div className="w-full mx-auto lg:px-8 px-3">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-lg flex items-center justify-center">
-              <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
+          {/* Logo Section */}
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-lg flex items-center justify-center">
+              <img 
+                src="/Logolaflecha.svg" 
+                alt="logo la flecha" 
+                className="w-full h-full object-contain" 
+              />
             </div>
-            <div>
-              {/* <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">
-            La Flecha
-          </h1> */}
+            <div className="hidden sm:block">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                La Flecha
+              </h1>
             </div>
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-4 lg:space-x-8">
-            <a href="#productos" className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-sm lg:text-base">Productos</a>
-            <a href="#Footer" className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-sm lg:text-base">Nosotros</a>
-            <a href="#Footer" className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-sm lg:text-base">Contacto</a>
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            <a 
+              href="#productos" 
+              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            >
+              Productos
+            </a>
+            <a 
+              href="#Footer" 
+              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            >
+              Nosotros
+            </a>
+            <a 
+              href="#Footer" 
+              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            >
+              Contacto
+            </a>
           </nav>
 
-          {/* Botón para mobil */}
+          {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 text-gray-400"
+            className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? (
-              <X className="h-6 w-6 text-gray-400" />
+              <X className="h-6 w-6 text-gray-600" />
             ) : (
-              <Menu className="h-6 w-6 text-gray-400" />
+              <Menu className="h-6 w-6 text-amber-600" />
             )}
           </button>
         </div>
 
-        {/* Navegación mobil */}
-        {isMenuOpen && (
-          <nav className="md:hidden pb-4">
-            <div className="flex flex-col space-y-3">
+        {/* Mobile Navigation */}
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen 
+            ? 'max-h-60 opacity-100 pb-4' 
+            : 'max-h-0 opacity-0 overflow-hidden'
+        }`}>
+          <nav className="border-t border-gray-200 pt-4">
+            <div className="flex flex-col space-y-1">
               <a 
                 href="#productos" 
-                className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-base px-2 py-1"
+                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Productos
               </a>
               <a 
                 href="#Footer" 
-                className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-base px-2 py-1"
+                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Nosotros
               </a>
               <a 
                 href="#Footer" 
-                className="text-gray-700 hover:text-amber-600 transition-colors font-medium text-base px-2 py-1"
+                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contacto
               </a>
             </div>
           </nav>
-        )}
+        </div>
       </div>
     </header>
   );
