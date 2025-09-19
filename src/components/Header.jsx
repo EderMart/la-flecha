@@ -6,6 +6,27 @@ import { Menu, X } from 'lucide-react';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Función para navegación suave sin cambiar la URL
+  const scrollToSection = (sectionId, event) => {
+    event.preventDefault(); // Prevenir comportamiento por defecto del enlace
+    
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+    
+    // Limpiar cualquier hash de la URL
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+    
+    // Cerrar menú móvil si está abierto
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 w-full">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,24 +49,24 @@ export default function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            <a 
-              href="#productos" 
-              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            <button 
+              onClick={(e) => scrollToSection('productos', e)}
+              className="text-gray-400 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap cursor-pointer bg-transparent border-none p-0 hover:underline focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-sm"
             >
               Productos
-            </a>
-            <a 
-              href="#Footer" 
-              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            </button>
+            <button 
+              onClick={(e) => scrollToSection('Footer', e)}
+              className="text-gray-400 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap cursor-pointer bg-transparent border-none p-0 hover:underline focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-sm"
             >
               Nosotros
-            </a>
-            <a 
-              href="#Footer" 
-              className="text-gray-700 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap"
+            </button>
+            <button 
+              onClick={(e) => scrollToSection('Footer', e)}
+              className="text-gray-400 hover:text-amber-600 transition-colors duration-200 font-medium text-sm lg:text-base whitespace-nowrap cursor-pointer bg-transparent border-none p-0 hover:underline focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-sm"
             >
               Contacto
-            </a>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -71,27 +92,24 @@ export default function Header() {
         }`}>
           <nav className="border-t border-gray-200 pt-4">
             <div className="flex flex-col space-y-1">
-              <a 
-                href="#productos" 
-                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
-                onClick={() => setIsMenuOpen(false)}
+              <button 
+                onClick={(e) => scrollToSection('productos', e)}
+                className="text-gray-400 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block text-left w-full bg-transparent border-none cursor-pointer"
               >
                 Productos
-              </a>
-              <a 
-                href="#Footer" 
-                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={(e) => scrollToSection('Footer', e)}
+                className="text-gray-400 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block text-left w-full bg-transparent border-none cursor-pointer"
               >
                 Nosotros
-              </a>
-              <a 
-                href="#Footer" 
-                className="text-gray-700 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={(e) => scrollToSection('Footer', e)}
+                className="text-gray-400 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block text-left w-full bg-transparent border-none cursor-pointer"
               >
                 Contacto
-              </a>
+              </button>
             </div>
           </nav>
         </div>
