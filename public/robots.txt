@@ -5,7 +5,7 @@ Disallow: /src/
 Disallow: /.env*
 
 # URLs importantes para crawlers
-Sitemap: https://laflechajoyeria.com/sitemap.xml
+Sitemap: https://joyerialaflecha.com/sitemap.xml
 
 # Para mejor indexación
 Crawl-delay: 1
