@@ -8,6 +8,11 @@ import {
   deleteDoc,
   updateDoc,
   onSnapshot,
+  addDoc,
+  orderBy,
+  query,
+  limit,
+  Timestamp  // ← Agregar esta importación
 } from "firebase/firestore";
 import { db } from "../../firebase"; // ⚠️ revisa que la ruta sea correcta
 
@@ -29,15 +34,19 @@ const INITIAL_AVAILABLE_PRODUCTS = {
   pulseras: [],
 };
 
+// ✅ Testimonios iniciales de ejemplo
+const INITIAL_TESTIMONIALS = [];
+
 export const ProductProvider = ({ children }) => {
   const [productos, setProductos] = useState(INITIAL_PRODUCTS);
   const [productosDisponibles, setProductosDisponibles] = useState(
     INITIAL_AVAILABLE_PRODUCTS
   );
+  const [testimonios, setTestimonios] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  // 📥 Cargar productos y disponibles desde Firebase
+  // 🔥 Cargar productos, disponibles y testimonios desde Firebase
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -59,29 +68,33 @@ export const ProductProvider = ({ children }) => {
                 ...data,
                 id: parseInt(d.id, 10),
                 precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
+                // Asegurar compatibilidad con versiones antiguas
+                imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
               };
             });
           }
 
           // --- Productos disponibles
-          // --- Productos disponibles
-const availableSnapshot = await getDocs(
-  collection(db, `disponibles_${category}`)
-);
+          const availableSnapshot = await getDocs(
+            collection(db, `disponibles_${category}`)
+          );
 
-availableData[category] = availableSnapshot.docs.map((d) => {
-  const data = d.data() || {};
-  return {
-    ...data,
-    id: parseInt(d.id, 10),
-    precio: typeof data.precio === 'number'
-      ? data.precio
-      : parsePrecioInput(data.precio),
-  };
-});
-
-
+          availableData[category] = availableSnapshot.docs.map((d) => {
+            const data = d.data() || {};
+            return {
+              ...data,
+              id: parseInt(d.id, 10),
+              precio: typeof data.precio === 'number'
+                ? data.precio
+                : parsePrecioInput(data.precio),
+              // Asegurar compatibilidad con versiones antiguas
+              imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
+            };
+          });
         }
+
+        // --- Cargar testimonios
+        await loadTestimonials();
 
         setProductos(productData);
         setProductosDisponibles(availableData);
@@ -100,6 +113,7 @@ availableData[category] = availableSnapshot.docs.map((d) => {
         console.error("Error cargando productos:", error);
         setProductos(INITIAL_PRODUCTS);
         setProductosDisponibles(INITIAL_AVAILABLE_PRODUCTS);
+        setTestimonios(INITIAL_TESTIMONIALS);
       } finally {
         setIsLoading(false);
       }
@@ -108,55 +122,103 @@ availableData[category] = availableSnapshot.docs.map((d) => {
     loadProducts();
   }, []);
 
+  // 📡 Función para cargar testimonios
+  const loadTestimonials = async () => {
+    try {
+      const testimonialsRef = collection(db, "testimonios");
+      const q = query(
+        testimonialsRef,
+        orderBy("fecha", "desc"),
+        limit(20)
+      );
+
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        // Inicializar con testimonios de ejemplo si no hay ninguno
+        await initializeTestimonials();
+        setTestimonios(INITIAL_TESTIMONIALS);
+      } else {
+        const testimoniosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setTestimonios(testimoniosData);
+      }
+    } catch (error) {
+      console.error("Error cargando testimonios:", error);
+      setTestimonios(INITIAL_TESTIMONIALS);
+    }
+  };
+
   // 📡 Escuchar cambios en tiempo real
   useEffect(() => {
-    const categories = ["anillos", "collares", "aretes", "pulseras"];
-    const unsubscribes = [];
+  const categories = ["anillos", "collares", "aretes", "pulseras"];
+  const unsubscribes = [];
 
-    categories.forEach((category) => {
-      // --- Listener productos
-      const unsubProductos = onSnapshot(
-        collection(db, category),
-        (snapshot) => {
-          const categoryProducts = snapshot.docs.map((d) => {
-            const data = d.data() || {};
-            return {
-              ...data,
-              id: parseInt(d.id, 10),
-              precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
-            };
-          });
-          setProductos((prev) => ({ ...prev, [category]: categoryProducts }));
-          setProductos((prev) => ({
-            ...prev,
-            [category]: categoryProducts,
-          }));
-        },
-        (error) => console.error(`Error escuchando ${category}:`, error)
-      );
+  categories.forEach((category) => {
+    // --- Listener productos
+    const unsubProductos = onSnapshot(
+      collection(db, category),
+      (snapshot) => {
+        const categoryProducts = snapshot.docs.map((d) => {
+          const data = d.data() || {};
+          return {
+            ...data,
+            id: parseInt(d.id, 10),
+            precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
+            // Asegurar compatibilidad con versiones antiguas
+            imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
+          };
+        });
+        setProductos((prev) => ({ ...prev, [category]: categoryProducts }));
+      },
+      (error) => console.error(`Error escuchando ${category}:`, error)
+    );
 
-      // --- Listener disponibles
-      const unsubDisponibles = onSnapshot(
-        collection(db, `disponibles_${category}`),
-        (snapshot) => {
-          const categoryProducts = snapshot.docs.map((doc) => ({
+    // --- Listener disponibles
+    const unsubDisponibles = onSnapshot(
+      collection(db, `disponibles_${category}`),
+      (snapshot) => {
+        const categoryProducts = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
             id: parseInt(doc.id),
-            ...doc.data(),
-          }));
-          setProductosDisponibles((prev) => ({ ...prev, [category]: categoryProducts }));
+            ...data,
+            // Asegurar compatibilidad con versiones antiguas
+            imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
+          };
+        });
+        setProductosDisponibles((prev) => ({ ...prev, [category]: categoryProducts }));
+      },
+      (error) => console.error(`Error escuchando disponibles_${category}:`, error)
+    );
 
-        },
-        (error) => console.error(`Error escuchando disponibles_${category}:`, error)
-      );
+    unsubscribes.push(unsubProductos, unsubDisponibles);
+  });
 
-      unsubscribes.push(unsubProductos, unsubDisponibles);
-    });
+    // --- Listener testimonios
+    const testimonialsRef = collection(db, "testimonios");
+  const q = query(testimonialsRef, orderBy("fecha", "desc"), limit(20));
+  
+  const unsubTestimonials = onSnapshot(
+    q,
+    (snapshot) => {
+      const testimoniosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTestimonios(testimoniosData);
+    },
+    (error) => console.error("Error escuchando testimonios:", error)
+  );
 
-    return () => {
-      unsubscribes.forEach((unsub) => unsub());
-    };
-  }, []);
+  unsubscribes.push(unsubTestimonials);
 
+  return () => {
+    unsubscribes.forEach((unsub) => unsub());
+  };
+}, []);
   // 🔧 Funciones auxiliares
   const initializeFirebaseData = async (category, products) => {
     try {
@@ -166,10 +228,23 @@ availableData[category] = availableSnapshot.docs.map((d) => {
           precio: product.precio,
           descripcion: product.descripcion,
           imagen: product.imagen,
+          material: product.material || "",
+          peso: product.peso || "",
+          tamano: product.tamano || "",
         });
       }
     } catch (error) {
       console.error(`Error inicializando ${category}:`, error);
+    }
+  };
+
+  const initializeTestimonials = async () => {
+    try {
+      for (const testimonial of INITIAL_TESTIMONIALS) {
+        await setDoc(doc(db, "testimonios", testimonial.id), testimonial);
+      }
+    } catch (error) {
+      console.error("Error inicializando testimonios:", error);
     }
   };
 
@@ -208,37 +283,70 @@ availableData[category] = availableSnapshot.docs.map((d) => {
     return Number.isFinite(n2) ? n2 : 0;
   };
 
-
-
   // CRUD productos terminados
   const addProduct = async (categoria, newProduct) => {
     const id = newProduct.id.toString();
     const precioNumber = parsePrecioInput(newProduct.precio);
-    console.log('addProduct payload', { id, titulo: newProduct.titulo, precio: precioNumber });
+
+    // Procesar imágenes
+    let imagenesArray = [];
+    if (newProduct.imagenes && Array.isArray(newProduct.imagenes)) {
+      imagenesArray = newProduct.imagenes.filter(img => img && img.trim());
+    } else if (newProduct.imagen && newProduct.imagen.trim()) {
+      imagenesArray = [newProduct.imagen.trim()];
+    }
+
+    const imagenPrincipal = imagenesArray[0] || newProduct.imagen || '';
+
+    console.log('addProduct payload', {
+      id,
+      titulo: newProduct.titulo,
+      precio: precioNumber,
+      imagenes: imagenesArray,
+      imagen: imagenPrincipal
+    });
+
     await setDoc(doc(db, categoria, id), {
       id,
       titulo: newProduct.titulo,
       precio: precioNumber,
       descripcion: newProduct.descripcion,
-      imagen: newProduct.imagen,
-    }, { merge: true }); // merge por seguridad si por alguna razón el doc no existiera
+      imagen: imagenPrincipal,
+      imagenes: imagenesArray, // Agregar el array de imágenes
+      material: newProduct.material || "",
+      peso: newProduct.peso || "",
+      tamano: newProduct.tamano || "",
+    }, { merge: true });
     await markLastUpdated();
   };
-
 
   const updateProduct = async (categoria, updatedProduct) => {
     const id = updatedProduct.id.toString();
     const precioNumber = parsePrecioInput(updatedProduct.precio);
+
+    // Procesar imágenes
+    let imagenesArray = [];
+    if (updatedProduct.imagenes && Array.isArray(updatedProduct.imagenes)) {
+      imagenesArray = updatedProduct.imagenes.filter(img => img && img.trim());
+    } else if (updatedProduct.imagen && updatedProduct.imagen.trim()) {
+      imagenesArray = [updatedProduct.imagen.trim()];
+    }
+
+    const imagenPrincipal = imagenesArray[0] || updatedProduct.imagen || '';
+
     await setDoc(doc(db, categoria, id), {
       id,
       titulo: updatedProduct.titulo,
       precio: precioNumber,
       descripcion: updatedProduct.descripcion,
-      imagen: updatedProduct.imagen,
+      imagen: imagenPrincipal,
+      imagenes: imagenesArray, // Agregar el array de imágenes
+      material: updatedProduct.material || "",
+      peso: updatedProduct.peso || "",
+      tamano: updatedProduct.tamano || "",
     }, { merge: true });
     await markLastUpdated();
   };
-
 
   const deleteProduct = async (categoria, id) => {
     try {
@@ -253,29 +361,59 @@ availableData[category] = availableSnapshot.docs.map((d) => {
   const addProductoDisponible = async (categoria, newProduct) => {
     const id = newProduct.id.toString();
     const precioNumber = parsePrecioInput(newProduct.precio);
+
+    // Procesar imágenes
+    let imagenesArray = [];
+    if (newProduct.imagenes && Array.isArray(newProduct.imagenes)) {
+      imagenesArray = newProduct.imagenes.filter(img => img && img.trim());
+    } else if (newProduct.imagen && newProduct.imagen.trim()) {
+      imagenesArray = [newProduct.imagen.trim()];
+    }
+
+    const imagenPrincipal = imagenesArray[0] || newProduct.imagen || '';
+
     await setDoc(doc(db, `disponibles_${categoria}`, id), {
       id,
       titulo: newProduct.titulo,
       precio: precioNumber,
       descripcion: newProduct.descripcion,
-      imagen: newProduct.imagen,
+      imagen: imagenPrincipal,
+      imagenes: imagenesArray, // Agregar el array de imágenes
+      material: newProduct.material || "",
+      peso: newProduct.peso || "",
+      tamano: newProduct.tamano || "",
     }, { merge: true });
     await markLastUpdated();
   };
 
+
   const updateProductoDisponible = async (categoria, updatedProduct) => {
     const id = updatedProduct.id.toString();
     const precioNumber = parsePrecioInput(updatedProduct.precio);
+
+    // Procesar imágenes
+    let imagenesArray = [];
+    if (updatedProduct.imagenes && Array.isArray(updatedProduct.imagenes)) {
+      imagenesArray = updatedProduct.imagenes.filter(img => img && img.trim());
+    } else if (updatedProduct.imagen && updatedProduct.imagen.trim()) {
+      imagenesArray = [updatedProduct.imagen.trim()];
+    }
+
+    const imagenPrincipal = imagenesArray[0] || updatedProduct.imagen || '';
+
     await setDoc(doc(db, `disponibles_${categoria}`, id), {
       id,
       titulo: updatedProduct.titulo,
       precio: precioNumber,
       descripcion: updatedProduct.descripcion,
-      imagen: updatedProduct.imagen,
+      imagen: imagenPrincipal,
+      imagenes: imagenesArray, // Agregar el array de imágenes
+      material: updatedProduct.material || "",
+      peso: updatedProduct.peso || "",
+      tamano: updatedProduct.tamano || "",
     }, { merge: true });
     await markLastUpdated();
   };
-
 
   const deleteProductoDisponible = async (categoria, id) => {
     try {
@@ -286,10 +424,111 @@ availableData[category] = availableSnapshot.docs.map((d) => {
     }
   };
 
+  // CRUD Testimonios
+  const addTestimonio = async (testimonioData) => {
+    try {
+      const nuevoTestimonio = {
+        nombre: testimonioData.nombre,
+        testimonio: testimonioData.testimonio,
+        calificacion: testimonioData.calificacion || 5,
+        imagen: testimonioData.imagen || "/api/placeholder/60/60",
+        fecha: Timestamp.now(),
+        producto: testimonioData.producto || "",
+        verificado: testimonioData.verificado || false,
+        mostrar: testimonioData.mostrar !== false,
+        telefono: testimonioData.telefono || "",
+        email: testimonioData.email || ""
+      };
+
+      const docRef = await addDoc(collection(db, "testimonios"), nuevoTestimonio);
+      console.log('✅ Testimonio guardado exitosamente:', docRef.id); // Confirmación positiva
+      await markLastUpdated();
+      return docRef.id;
+    } catch (error) {
+      console.error("❌ Error agregando testimonio:", error);
+      throw error;
+    }
+  };
+
+  const updateTestimonio = async (id, testimonioData) => {
+    try {
+      await updateDoc(doc(db, "testimonios", id), {
+        ...testimonioData,
+        fechaActualizacion: Date.now()
+      });
+      await markLastUpdated();
+    } catch (error) {
+      console.error("Error actualizando testimonio:", error);
+      throw error;
+    }
+  };
+
+  const deleteTestimonio = async (id) => {
+    try {
+      await deleteDoc(doc(db, "testimonios", id));
+      await markLastUpdated();
+    } catch (error) {
+      console.error("Error eliminando testimonio:", error);
+      throw error;
+    }
+  };
+
+  const toggleTestimonioVisibilidad = async (id, mostrar) => {
+    try {
+      await updateDoc(doc(db, "testimonios", id), { mostrar });
+      await markLastUpdated();
+    } catch (error) {
+      console.error("Error cambiando visibilidad del testimonio:", error);
+      throw error;
+    }
+  };
+
+  const verificarTestimonio = async (id, verificado = true) => {
+    try {
+      await updateDoc(doc(db, "testimonios", id), {
+        verificado,
+        fechaVerificacion: Date.now()
+      });
+      await markLastUpdated();
+    } catch (error) {
+      console.error("Error verificando testimonio:", error);
+      throw error;
+    }
+  };
+
+  // Obtener testimonios públicos (para mostrar en la web)
+  const getTestimoniosPublicos = () => {
+    return testimonios.filter(t => t.mostrar === true);
+  };
+
+  // Obtener estadísticas de testimonios
+  const getTestimonioStats = () => {
+    const total = testimonios.length;
+    const verificados = testimonios.filter(t => t.verificado).length;
+    const publicos = testimonios.filter(t => t.mostrar).length;
+    const promedioCalificacion = testimonios.length > 0
+      ? testimonios.reduce((sum, t) => sum + (t.calificacion || 5), 0) / testimonios.length
+      : 5;
+
+    return {
+      total,
+      verificados,
+      publicos,
+      ocultos: total - publicos,
+      promedioCalificacion: Math.round(promedioCalificacion * 10) / 10
+    };
+  };
+
   // 📤 Backup / Import / Reset
   const exportProducts = () => {
     return JSON.stringify(
-      { productos, productosDisponibles, timestamp: Date.now(), version: "2.0" },
+      {
+        productos,
+        productosDisponibles,
+        testimonios,
+        timestamp: Date.now(),
+        version: "2.1"
+      },
       null,
       2
     );
@@ -301,6 +540,8 @@ availableData[category] = availableSnapshot.docs.map((d) => {
       if (!data.productos) throw new Error("Formato inválido");
 
       await resetProducts();
+
+      // Importar productos
       for (const [category, products] of Object.entries(data.productos)) {
         for (const product of products) {
           await setDoc(doc(db, category, product.id.toString()), {
@@ -308,9 +549,20 @@ availableData[category] = availableSnapshot.docs.map((d) => {
             precio: product.precio,
             descripcion: product.descripcion,
             imagen: product.imagen,
+            material: product.material || "",
+            peso: product.peso || "",
+            tamano: product.tamano || "",
           });
         }
       }
+
+      // Importar testimonios si existen
+      if (data.testimonios) {
+        for (const testimonio of data.testimonios) {
+          await addTestimonio(testimonio);
+        }
+      }
+
       await markLastUpdated();
       return true;
     } catch (error) {
@@ -342,16 +594,23 @@ availableData[category] = availableSnapshot.docs.map((d) => {
       (total, categoryProducts) => total + categoryProducts.length,
       0
     );
+
+    const testimonioStats = getTestimonioStats();
+
     return {
       totalProducts,
       lastUpdated: lastUpdated ? new Date(lastUpdated).toISOString() : "Nunca",
+      testimonios: testimonioStats
     };
   };
 
   const contextValue = {
     productos,
     productosDisponibles,
+    testimonios,
     isLoading,
+
+    // Productos
     addProduct,
     updateProduct,
     deleteProduct,
@@ -365,6 +624,16 @@ availableData[category] = availableSnapshot.docs.map((d) => {
     clearLocalStorage,
     getStats,
     markLastUpdated,
+
+    // Testimonios
+    addTestimonio,
+    updateTestimonio,
+    deleteTestimonio,
+    toggleTestimonioVisibilidad,
+    verificarTestimonio,
+    getTestimoniosPublicos,
+    getTestimonioStats,
+    loadTestimonials
   };
 
   return (

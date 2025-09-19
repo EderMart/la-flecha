@@ -1,0 +1,1 @@
+bg-white text-amber-600 hover:bg-gray-50 px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-3 mx-auto sm:mx-0

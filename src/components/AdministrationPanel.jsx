@@ -1,6 +1,8 @@
 // AdministrationPanel.jsx - ACTUALIZADO con Productos Terminados y Disponibles
 import React, { useState, useEffect } from 'react';
+
 import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, RotateCcw, AlertCircle, BarChart3, Database, RefreshCw, Mail, Lock, LogOut } from 'lucide-react';
+
 import { useProducts } from './ProductContext';
 import { loginAdmin, logoutAdmin, useAuthState, isAdminUser } from '../../auth';
 
@@ -104,35 +106,74 @@ const AdministrationPanel = () => {
     }
   };
 
-  const handleEdit = (categoria, producto) => {
-    setEditingProduct({ categoria, tipo: productType, ...producto });
-  };
+ const handleEdit = (categoria, producto) => {
+  // Procesar imágenes para edición
+  let imagenesArray = [];
+  
+  if (producto.imagenes && Array.isArray(producto.imagenes)) {
+    imagenesArray = producto.imagenes.filter(img => img && img.trim());
+  } else if (producto.imagen && producto.imagen.trim()) {
+    imagenesArray = [producto.imagen.trim()];
+  }
+
+  setEditingProduct({ 
+    categoria, 
+    tipo: productType, 
+    ...producto,
+    imagenes: imagenesArray,
+    newImageUrl: ''
+  });
+};
 
   const handleSave = async () => {
-    if (editingProduct) {
-      try {
-        const updatedProduct = {
-          id: editingProduct.id,
-          titulo: editingProduct.titulo,
-          precio: editingProduct.precio,
-          descripcion: editingProduct.descripcion,
-          imagen: editingProduct.imagen
-        };
-
-        if (editingProduct.tipo === 'terminados') {
-          await updateProduct(editingProduct.categoria, updatedProduct);
-        } else {
-          await updateProductoDisponible(editingProduct.categoria, updatedProduct);
-        }
-
-        await markLastUpdated();
-        showNotification('Producto actualizado correctamente');
-        setEditingProduct(null);
-      } catch (error) {
-        showNotification('Error al actualizar el producto', 'error');
+  if (editingProduct) {
+    try {
+      // Asegurar que tenemos un array de imágenes válido
+      let imagenesArray = [];
+      
+      if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
+        imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
+      } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
+        imagenesArray = [editingProduct.imagen.trim()];
       }
+
+      // Si no hay imágenes en el array pero sí imagen principal, agregarla
+      if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
+        imagenesArray = [editingProduct.imagen.trim()];
+      }
+
+      // Asegurar que la primera imagen del array sea la imagen principal
+      const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
+
+      const updatedProduct = {
+        id: editingProduct.id,
+        titulo: editingProduct.titulo,
+        precio: editingProduct.precio,
+        descripcion: editingProduct.descripcion,
+        imagen: imagenPrincipal, // Imagen principal
+        imagenes: imagenesArray, // Array de todas las imágenes
+        material: editingProduct.material || "",
+        peso: editingProduct.peso || "", 
+        tamano: editingProduct.tamano || "",
+      };
+
+      console.log('Producto final a guardar:', updatedProduct);
+
+      if (editingProduct.tipo === 'terminados') {
+        await updateProduct(editingProduct.categoria, updatedProduct);
+      } else {
+        await updateProductoDisponible(editingProduct.categoria, updatedProduct);
+      }
+
+      await markLastUpdated();
+      showNotification('Producto actualizado correctamente');
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Error al actualizar producto:', error);
+      showNotification('Error al actualizar el producto', 'error');
     }
-  };
+  }
+};
 
   const handleDelete = async (categoria, id) => {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
@@ -152,45 +193,106 @@ const AdministrationPanel = () => {
   };
 
   const handleAddNew = () => {
-    const newId = getNextId();
-    setEditingProduct({
-      categoria: activeCategory,
-      tipo: productType,
-      id: newId,
-      titulo: '',
-      precio: '',
-      descripcion: '',
-      imagen: ''
-    });
-  };
+  const currentProductsForType = productType === 'terminados' ? productos : productosDisponibles;
+  
+  let maxId = 0;
+  Object.values(currentProductsForType).forEach(categoria => {
+    if (categoria && Array.isArray(categoria)) {
+      categoria.forEach(producto => {
+        if (producto.id > maxId) {
+          maxId = producto.id;
+        }
+      });
+    }
+  });
+  
+  const newId = maxId + 1;
+  
+  setEditingProduct({
+    categoria: activeCategory,
+    tipo: productType,
+    id: newId,
+    titulo: '',
+    precio: '',
+    descripcion: '',
+    imagen: '',
+    imagenes: [], // Inicializar como array vacío
+    material: '',
+    peso: '',
+    tamano: '',
+    newImageUrl: '' // Inicializar campo para nueva URL
+  });
+};
 
   const handleAddNewProduct = async () => {
-    if (editingProduct && editingProduct.titulo && editingProduct.precio) {
-      try {
-        const newProduct = {
-          id: editingProduct.id,
-          titulo: editingProduct.titulo,
-          precio: editingProduct.precio,
-          descripcion: editingProduct.descripcion,
-          imagen: editingProduct.imagen || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop'
-        };
-
-        if (editingProduct.tipo === 'terminados') {
-          await addProduct(editingProduct.categoria, newProduct);
-        } else {
-          await addProductoDisponible(editingProduct.categoria, newProduct);
+  if (editingProduct && editingProduct.titulo && editingProduct.precio) {
+    try {
+      // Verificar que el ID no exista ya
+      const currentProductsForType = editingProduct.tipo === 'terminados' ? productos : productosDisponibles;
+      const existingIds = [];
+      
+      Object.values(currentProductsForType).forEach(categoria => {
+        if (categoria && Array.isArray(categoria)) {
+          categoria.forEach(producto => {
+            existingIds.push(producto.id);
+          });
         }
-
-        await markLastUpdated();
-        setEditingProduct(null);
-        showNotification('Producto agregado correctamente');
-      } catch (error) {
-        showNotification('Error al agregar el producto', 'error');
+      });
+      
+      // Si el ID ya existe, generar uno nuevo
+      let finalId = editingProduct.id;
+      while (existingIds.includes(finalId)) {
+        finalId++;
       }
-    } else {
-      showNotification('Por favor completa al menos el título y el precio', 'error');
+
+      // Procesar imágenes de la misma manera
+      let imagenesArray = [];
+      
+      if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
+        imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
+      } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
+        imagenesArray = [editingProduct.imagen.trim()];
+      }
+
+      // Si no hay imágenes en el array pero sí imagen principal, agregarla
+      if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
+        imagenesArray = [editingProduct.imagen.trim()];
+      }
+
+      // Asegurar que la primera imagen del array sea la imagen principal
+      const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
+       
+      const newProduct = {
+        id: finalId,
+        titulo: editingProduct.titulo.trim(),
+        precio: editingProduct.precio.toString(),
+        descripcion: editingProduct.descripcion.trim(),
+        imagen: imagenPrincipal, // Imagen principal
+        imagenes: imagenesArray, // Array de todas las imágenes
+        material: editingProduct.material?.trim() || "",
+        peso: editingProduct.peso?.trim() || "", 
+        tamano: editingProduct.tamano?.trim() || "",
+      };
+
+      console.log('Nuevo producto a crear:', newProduct);
+
+      if (editingProduct.tipo === 'terminados') {
+        await addProduct(editingProduct.categoria, newProduct);
+      } else {
+        await addProductoDisponible(editingProduct.categoria, newProduct);
+      }
+
+      await markLastUpdated();
+      setEditingProduct(null);
+      showNotification(`Producto agregado correctamente con ID: ${finalId}`);
+    } catch (error) {
+      console.error('Error al agregar producto:', error);
+      showNotification('Error al agregar el producto', 'error');
     }
-  };
+  } else {
+    showNotification('Por favor completa al menos el título y el precio', 'error');
+  }
+};
 
   const handleExportData = () => {
     const data = exportProducts();
@@ -488,21 +590,21 @@ const AdministrationPanel = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => setShowStatsModal(true)}
-                className="bg-purple-500 hover:bg-purple-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-purple-500 hover:bg-purple-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <BarChart3 className="w-4 h-4" />
                 <span>Estadísticas</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-blue-500 hover:bg-blue-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <Download className="w-4 h-4" />
                 <span>Backup</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                className="bg-red-500 hover:bg-red-600 text-red-500 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Cerrar Sesión</span>
@@ -522,7 +624,7 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('terminados')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
-                      ? 'bg-blue-500 text-gray-400 shadow-md'
+                      ? 'text-gray-400 text-gray-400 shadow-md'
                       : 'text-gray-400 hover:text-gray-800'
                     }`}
                 >
@@ -531,8 +633,8 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('disponibles')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
-                      ? 'bg-purple-500 text-gray-400 shadow-md'
-                      : 'text-gray-600 hover:text-gray-800'
+                      ? 'text-gray-400 text-gray-400 shadow-md'
+                      : 'text-gray-400 hover:text-gray-800'
                     }`}
                 >
                   Productos Disponibles
@@ -548,8 +650,8 @@ const AdministrationPanel = () => {
                     key={category.key}
                     onClick={() => setActiveCategory(category.key)}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeCategory === category.key
-                        ? (productType === 'terminados' ? 'bg-blue-500' : 'bg-purple-500') + ' text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? (productType === 'terminados' ? 'bg-blue-500' : 'bg-purple-500') + ' text-gray-400'
+                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
                   >
                     {category.name} ({currentProducts[category.key]?.length || 0})
@@ -589,14 +691,14 @@ const AdministrationPanel = () => {
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-64"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-64 text-gray-400"
                   />
                 </div>
 
                 {/* Botón agregar */}
                 <button
                   onClick={handleAddNew}
-                  className="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                  className="bg-green-500 hover:bg-green-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Agregar</span>
@@ -617,7 +719,7 @@ const AdministrationPanel = () => {
                     alt={producto.titulo}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
+                      e.target.src = '';
                     }}
                   />
                   <div className="absolute top-2 right-2 flex space-x-2">
@@ -692,7 +794,7 @@ const AdministrationPanel = () => {
                           alt={producto.titulo}
                           className="w-12 h-12 rounded-lg object-cover"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
+                            e.target.src = '';
                           }}
                         />
                       </td>
@@ -752,7 +854,7 @@ const AdministrationPanel = () => {
             </p>
             <button
               onClick={handleAddNew}
-              className="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-auto"
+              className="bg-green-500 hover:bg-green-600 text-gray-400 px-6 py-3 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-auto"
             >
               <Plus className="w-5 h-5" />
               <span>Agregar primer producto</span>
@@ -810,15 +912,27 @@ const AdministrationPanel = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ID del Producto
-                    </label>
-                    <input
-                      type="number"
-                      value={editingProduct.id}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                      min="1"
-                    />
+  ID del Producto
+</label>
+<input
+  type="number"
+  value={editingProduct.id}
+  readOnly={!!editingProduct.titulo}
+  onChange={(e) => {
+    if (!editingProduct.titulo) {
+      setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) || 1 });
+    }
+  }}
+  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 ${
+    !!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
+  }`}
+  min="1"
+/>
+{!!editingProduct.titulo && (
+  <p className="text-xs text-gray-500 mt-1">
+    El ID no se puede modificar en productos existentes
+  </p>
+)}
                   </div>
                 </div>
 
@@ -851,29 +965,108 @@ const AdministrationPanel = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL de la Imagen
-                  </label>
-                  <input
-                    type="url"
-                    value={editingProduct.imagen}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, imagen: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                  />
-                  {editingProduct.imagen && (
-                    <div className="mt-2">
-                      <img
-                        src={editingProduct.imagen}
-                        alt="Vista previa"
-                        className="w-32 h-32 object-cover rounded-lg"
-                        onError={(e) => {
-                          e.target.src = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop';
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Imágenes del Producto
+  </label>
+  
+  {/* Campo para agregar nueva imagen */}
+  <div className="flex space-x-2 mb-3">
+    <input
+      type="url"
+      value={editingProduct.newImageUrl || ''}
+      onChange={(e) => setEditingProduct({ ...editingProduct, newImageUrl: e.target.value })}
+      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+      placeholder="https://ejemplo.com/imagen.jpg"
+    />
+    <button
+      type="button"
+      onClick={() => {
+  if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
+    const currentImages = editingProduct.imagenes || [];
+    // Filtrar imágenes vacías y agregar la nueva
+    const validImages = currentImages.filter(img => img && img.trim());
+    const newImages = [...validImages, editingProduct.newImageUrl.trim()];
+    
+    setEditingProduct({ 
+      ...editingProduct, 
+      imagenes: newImages,
+      imagen: newImages[0], // Primera imagen como principal
+      newImageUrl: '' 
+    });
+  }
+}}
+      className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
+    >
+      <Plus className="w-4 h-4" />
+    </button>
+  </div>
+
+  {/* Lista de imágenes actuales */}
+  <div className="space-y-2">
+    {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
+      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+        <img
+          src={imageUrl}
+          alt={`Vista ${index + 1}`}
+          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+          onError={(e) => {
+            e.target.src = '';
+          }}
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-gray-600 truncate">{imageUrl}</p>
+          <p className="text-xs text-gray-400">
+            {index === 0 ? 'Imagen principal' : `Imagen ${index + 1}`}
+          </p>
+        </div>
+        <div className="flex space-x-1">
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const newImages = [...(editingProduct.imagenes || [])];
+                [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
+                setEditingProduct({ 
+                  ...editingProduct, 
+                  imagenes: newImages,
+                  imagen: newImages[0]
+                });
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+              title="Hacer principal"
+            >
+              Principal
+            </button>
+          )}
+          {(editingProduct.imagenes || []).length > 1 && (
+            <button
+              type="button"
+              onClick={() => {
+                const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
+                setEditingProduct({ 
+                  ...editingProduct, 
+                  imagenes: newImages,
+                  imagen: newImages[0] || ''
+                });
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+              title="Eliminar imagen"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
+    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+      <p className="text-gray-500 text-sm">No hay imágenes agregadas</p>
+    </div>
+  )}
+</div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -887,19 +1080,49 @@ const AdministrationPanel = () => {
                     placeholder="Descripción del producto..."
                   />
                 </div>
+                <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
+  <input
+    type="text"
+    value={editingProduct.material || ""}
+    onChange={(e) => setEditingProduct({ ...editingProduct, material: e.target.value })}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Peso</label>
+  <input
+    type="text"
+    value={editingProduct.peso || ""}
+    onChange={(e) => setEditingProduct({ ...editingProduct, peso: e.target.value })}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Tamaño</label>
+  <input
+    type="text"
+    value={editingProduct.tamano || ""}
+    onChange={(e) => setEditingProduct({ ...editingProduct, tamano: e.target.value })}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+  />
+</div>
+
               </div>
 
               <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setEditingProduct(null)}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
                   <X className="w-5 h-5" />
                   <span>Cancelar</span>
                 </button>
                 <button
                   onClick={editingProduct.titulo ? handleSave : handleAddNewProduct}
-                  className="flex-1 bg-green-500 hover:bg-green-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
                   <Save className="w-5 h-5" />
                   <span>{editingProduct.titulo ? 'Guardar Cambios' : 'Crear Producto'}</span>
@@ -932,7 +1155,7 @@ const AdministrationPanel = () => {
                   <p className="text-blue-600 mb-4">Descarga una copia de seguridad de todos los productos en formato JSON.</p>
                   <button
                     onClick={handleExportData}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <Download className="w-5 h-5" />
                     <span>Descargar Backup</span>
@@ -952,7 +1175,7 @@ const AdministrationPanel = () => {
                   />
                   <button
                     onClick={handleImportData}
-                    className="w-full bg-green-500 hover:bg-green-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-green-500 hover:bg-green-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <Upload className="w-5 h-5" />
                     <span>Importar Datos</span>
@@ -965,7 +1188,7 @@ const AdministrationPanel = () => {
                   <p className="text-yellow-600 mb-4">Restaura todos los productos a los valores predeterminados del sistema.</p>
                   <button
                     onClick={handleResetData}
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <RotateCcw className="w-5 h-5" />
                     <span>Restaurar Datos</span>
@@ -978,7 +1201,7 @@ const AdministrationPanel = () => {
                   <p className="text-red-600 mb-4">Elimina completamente todos los datos almacenados y restaura los valores iniciales.</p>
                   <button
                     onClick={handleClearLocalStorage}
-                    className="w-full bg-red-500 hover:bg-red-600 text-black px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-red-500 hover:bg-red-600 text-gray-400 px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <Trash2 className="w-5 h-5" />
                     <span>Limpiar Todo</span>
