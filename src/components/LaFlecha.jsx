@@ -11,7 +11,48 @@ const formatPrice = (p) => {
   return n.toLocaleString('es-CO');
 };
 
+const CATEGORY_SUBTYPES = {
+  anillos: ['Anillos en oro 18k', 'Anillos tejidos'],
+  pulseras: ['Pulseras oro 18k', 'Pulseras tejidas'],
+  aretes: ['Aretes tradicionales'],
+  collares: ['Collares tradicionales'],
+  topos: ['Topos en oro 18k', 'Topos con piedras preciosas'],
+  dijes: ['Dijes tradicionales'],
+  juegos: [
+    'Juego de pulseras y anillo',
+    'Juego de cadena y dije',
+    'Juego de cadena, pulsera y anillo'
+  ]
+};
+
+const SubtypeSelector = ({ categoria, titulo, selectedSubtypes, setSelectedSubtypes }) => (
+  <div className="mb-4">
+    <select
+      value={selectedSubtypes[categoria]}
+      onChange={(e) => setSelectedSubtypes({
+        ...selectedSubtypes,
+        [categoria]: e.target.value
+      })}
+      className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 bg-white text-gray-700"
+    >
+      {CATEGORY_SUBTYPES[categoria]?.map(subtipo => (
+        <option key={subtipo} value={subtipo}>{subtipo}</option>
+      ))}
+    </select>
+  </div>
+);
+
+
 const LaFlecha = () => {
+  const [selectedSubtypes, setSelectedSubtypes] = useState({
+    anillos: 'Anillos en oro 18k',
+    pulseras: 'Pulseras oro 18k',
+    aretes: 'Aretes tradicionales',
+    collares: 'Collares tradicionales',
+    topos: 'Topos en oro 18k',
+    dijes: 'Dijes tradicionales',
+    juegos: 'Juego de pulseras y anillo'
+  });
   const [showSplash, setShowSplash] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentSlides, setCurrentSlides] = useState({
@@ -37,12 +78,13 @@ const LaFlecha = () => {
   });
 
 
+
   const { productos, productosDisponibles, testimonios, getTestimoniosPublicos, addTestimonio } = useProducts();
 
-  // Obtener testimonios públicos para mostrar
+  // Obtener testimonios pÃºblicos para mostrar
   const testimoniosPublicos = getTestimoniosPublicos();
 
-  // Función para manejar el envío del testimonio
+  // FunciÃ³n para manejar el envÃ­o del testimonio
   const handleTestimonialSubmit = async (e) => {
     e.preventDefault();
     setTestimonialSubmitting(true);
@@ -64,7 +106,7 @@ const LaFlecha = () => {
       // Cerrar el formulario
       setShowTestimonialForm(false);
 
-      // Opcional: Mostrar mensaje de éxito
+      // Opcional: Mostrar mensaje de Ã©xito
       alert('¡Gracias por compartir tu experiencia!');
 
     } catch (error) {
@@ -189,113 +231,113 @@ const LaFlecha = () => {
     setSelectedProduct(null);
   };
 
- const ProductModal = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const ProductModal = () => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  if (!isModalOpen || !selectedProduct) return null;
+    if (!isModalOpen || !selectedProduct) return null;
 
-  // Resetear el índice cuando cambie el producto
-  useEffect(() => {
-    setCurrentImageIndex(0);
-  }, [selectedProduct?.id]);
+    // Resetear el Ã­ndice cuando cambie el producto
+    useEffect(() => {
+      setCurrentImageIndex(0);
+    }, [selectedProduct?.id]);
 
-  // Obtener todas las imágenes del producto
-  const getAllImages = (product) => {
-    const images = [];
-    
-    // Agregar imagen principal si existe
-    if (product.imagen && product.imagen.trim()) {
-      images.push(product.imagen);
-    }
-    
-    // Agregar imágenes adicionales si existen
-    if (product.imagenes && Array.isArray(product.imagenes)) {
-      product.imagenes.forEach(img => {
-        if (img && img.trim() && !images.includes(img)) {
-          images.push(img);
-        }
-      });
-    }
-    
-    return images.filter(img => img && img.trim());
-  };
+    // Obtener todas las imÃ¡genes del producto
+    const getAllImages = (product) => {
+      const images = [];
 
-  const images = getAllImages(selectedProduct);
+      // Agregar imagen principal si existe
+      if (product.imagen && product.imagen.trim()) {
+        images.push(product.imagen);
+      }
 
-  // Funciones de navegación
-  const nextImage = () => {
-    setCurrentImageIndex(prev => (prev + 1) % images.length);
-  };
+      // Agregar imÃ¡genes adicionales si existen
+      if (product.imagenes && Array.isArray(product.imagenes)) {
+        product.imagenes.forEach(img => {
+          if (img && img.trim() && !images.includes(img)) {
+            images.push(img);
+          }
+        });
+      }
 
-  const prevImage = () => {
-    setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
-  };
+      return images.filter(img => img && img.trim());
+    };
 
-  const goToImage = (index) => {
-    setCurrentImageIndex(index);
-  };
+    const images = getAllImages(selectedProduct);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="relative">
-          <button
-            onClick={closeModal}
-            className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-600 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    // Funciones de navegaciÃ³n
+    const nextImage = () => {
+      setCurrentImageIndex(prev => (prev + 1) % images.length);
+    };
 
-          {/* Galería de imágenes mejorada */}
-          <div className="h-96 md:h-[500px] bg-gray-50 overflow-hidden rounded-t-2xl relative">
-            {images.length === 0 ? (
-              // Estado sin imágenes
-              <div className="h-full flex items-center justify-center">
-                <div className="text-gray-400 text-center">
-                  <Upload className="w-12 h-12 mx-auto mb-2" />
-                  <p>No hay imágenes disponibles</p>
+    const prevImage = () => {
+      setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
+    };
+
+    const goToImage = (index) => {
+      setCurrentImageIndex(index);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-600 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* GalerÃ­a de imÃ¡genes mejorada */}
+            <div className="h-96 md:h-[500px] bg-gray-50 overflow-hidden rounded-t-2xl relative">
+              {images.length === 0 ? (
+                // Estado sin imÃ¡genes
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-gray-400 text-center">
+                    <Upload className="w-12 h-12 mx-auto mb-2" />
+                    <p>No hay imÃ¡genes disponibles</p>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <>
-                {/* Imagen principal con animación suave */}
-                <div className="h-full flex items-center justify-center p-4 relative overflow-hidden">
-                  <img
-                    key={currentImageIndex}
-                    src={images[currentImageIndex]}
-                    alt={`${selectedProduct.titulo} - Vista ${currentImageIndex + 1}`}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg transition-all duration-500 ease-in-out transform"
-                    style={{
-                      animation: 'fadeIn 0.3s ease-in-out'
-                    }}
-                    onError={(e) => {
-                      e.target.src = '/api/placeholder/400/400';
-                    }}
-                  />
-                </div>
+              ) : (
+                <>
+                  {/* Imagen principal con animaciÃ³n suave */}
+                  <div className="h-full flex items-center justify-center p-4 relative overflow-hidden">
+                    <img
+                      key={currentImageIndex}
+                      src={images[currentImageIndex]}
+                      alt={`${selectedProduct.titulo} - Vista ${currentImageIndex + 1}`}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-lg transition-all duration-500 ease-in-out transform"
+                      style={{
+                        animation: 'fadeIn 0.3s ease-in-out'
+                      }}
+                      onError={(e) => {
+                        e.target.src = '/api/placeholder/400/400';
+                      }}
+                    />
+                  </div>
 
-                {/* Controles de navegación (solo si hay más de una imagen) */}
-                {images.length > 1 && (
-                  <>
-                    {/* Botones de navegación */}
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
-                      aria-label="Imagen anterior"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
+                  {/* Controles de navegaciÃ³n (solo si hay mÃ¡s de una imagen) */}
+                  {images.length > 1 && (
+                    <>
+                      {/* Botones de navegaciÃ³n */}
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Imagen anterior"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
 
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
-                      aria-label="Imagen siguiente"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Imagen siguiente"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
 
-                    {/* Indicadores de punto */}
-                    {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                      {/* Indicadores de punto */}
+                      {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                       {images.map((_, index) => (
                         <button
                           key={index}
@@ -310,139 +352,138 @@ const LaFlecha = () => {
                       ))}
                     </div> */}
 
-                    {/* Contador de imágenes */}
-                    <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
-                      {currentImageIndex + 1} / {images.length}
-                    </div>
-                  </>
-                )}
+                      {/* Contador de imÃ¡genes */}
+                      <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
+                        {currentImageIndex + 1} / {images.length}
+                      </div>
+                    </>
+                  )}
 
-                {/* Miniaturas en la parte inferior (solo si hay múltiples imágenes) */}
-                {images.length > 1 && images.length <= 6 && (
-                  <div className="absolute bottom-4 right-4 flex space-x-2 max-w-[300px] z-10">
-                    {images.map((imageUrl, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToImage(index)}
-                        className={`flex-shrin  k-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-110 ${
-                          index === currentImageIndex 
-                            ? 'border-white shadow-lg' 
+                  {/* Miniaturas en la parte inferior (solo si hay mÃºltiples imÃ¡genes) */}
+                  {images.length > 1 && images.length <= 6 && (
+                    <div className="absolute bottom-4 right-4 flex space-x-2 max-w-[300px] z-10">
+                      {images.map((imageUrl, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToImage(index)}
+                          className={`flex-shrin  k-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-110 ${index === currentImageIndex
+                            ? 'border-white shadow-lg'
                             : 'border-transparent hover:border-white/50'
-                        }`}
-                      >
-                        <img
-                          src={imageUrl}
-                          alt={`Vista ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = '/api/placeholder/48/48';
-                          }}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
+                            }`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`Vista ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.src = '/api/placeholder/48/48';
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                {/* Navegación con teclado */}
-                <div 
-                  className="absolute inset-0"
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowLeft') prevImage();
-                    if (e.key === 'ArrowRight') nextImage();
-                    if (e.key === 'Escape') closeModal();
-                  }}
-                  tabIndex={0}
-                />
-              </>
-            )}
-          </div>
-
-          {/* Información del producto */}
-          <div className="p-8">
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-3xl font-bold text-gray-800">{selectedProduct.titulo}</h2>
-              <span className="text-3xl font-bold text-amber-600">${formatPrice(selectedProduct.precio)}</span>
+                  {/* NavegaciÃ³n con teclado */}
+                  <div
+                    className="absolute inset-0"
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowLeft') prevImage();
+                      if (e.key === 'ArrowRight') nextImage();
+                      if (e.key === 'Escape') closeModal();
+                    }}
+                    tabIndex={0}
+                  />
+                </>
+              )}
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Descripción</h3>
-                <p className="text-gray-600 leading-relaxed">{selectedProduct.descripcion}</p>
+            {/* InformaciÃ³n del producto */}
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-3xl font-bold text-gray-800">{selectedProduct.titulo}</h2>
+                <span className="text-3xl font-bold text-amber-600">${formatPrice(selectedProduct.precio)}</span>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Características</h3>
-                  <ul className="space-y-2 text-gray-600">
-                    <li className="flex items-center">
-                      <Star className="w-4 h-4 text-amber-500 mr-2" />
-                      Calidad premium
-                    </li>
-                    <li className="flex items-center">
-                      <Shield className="w-4 h-4 text-amber-500 mr-2" />
-                      Garantía de por vida
-                    </li>
-                    <li className="flex items-center">
-                      <Award className="w-4 h-4 text-amber-500 mr-2" />
-                      Diseño exclusivo
-                    </li>
-                  </ul>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Descripción</h3>
+                  <p className="text-gray-600 leading-relaxed">{selectedProduct.descripcion}</p>
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Detalles</h3>
-                  <div className="space-y-2 text-gray-600">
-                    {selectedProduct.material && (
-                      <p><span className="font-medium">Material:</span> {selectedProduct.material}</p>
-                    )}
-                    {selectedProduct.peso && (
-                      <p><span className="font-medium">Peso:</span> {selectedProduct.peso}</p>
-                    )}
-                    {selectedProduct.tamano && (
-                      <p><span className="font-medium">Tamaño:</span> {selectedProduct.tamano}</p>
-                    )}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">CaracterÍsticas</h3>
+                    <ul className="space-y-2 text-gray-600">
+                      <li className="flex items-center">
+                        <Star className="w-4 h-4 text-amber-500 mr-2" />
+                        Calidad premium
+                      </li>
+                      <li className="flex items-center">
+                        <Shield className="w-4 h-4 text-amber-500 mr-2" />
+                        Garantía de por vida
+                      </li>
+                      <li className="flex items-center">
+                        <Award className="w-4 h-4 text-amber-500 mr-2" />
+                        Diseño exclusivo
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Detalles</h3>
+                    <div className="space-y-2 text-gray-600">
+                      {selectedProduct.material && (
+                        <p><span className="font-medium">Material:</span> {selectedProduct.material}</p>
+                      )}
+                      {selectedProduct.peso && (
+                        <p><span className="font-medium">Peso:</span> {selectedProduct.peso}</p>
+                      )}
+                      {selectedProduct.tamano && (
+                        <p><span className="font-medium">TamaÃ±o:</span> {selectedProduct.tamano}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Mostrar información de imágenes si hay múltiples */}
-              {/* {images.length > 1 && (
+                {/* Mostrar informaciÃ³n de imÃ¡genes si hay mÃºltiples */}
+                {/* {images.length > 1 && (
                 <div className="bg-amber-50 rounded-lg p-4">
-                  <h4 className="font-medium text-amber-800 mb-2">Galería del producto</h4>
+                  <h4 className="font-medium text-amber-800 mb-2">GalerÃ­a del producto</h4>
                   <p className="text-amber-700 text-sm">
-                    Este producto incluye {images.length} imágenes. 
+                    Este producto incluye {images.length} imÃ¡genes. 
                     Usa las flechas o haz clic en los puntos para navegar entre ellas.
                   </p>
                 </div>
               )} */}
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-                <a
-                  href={`https://wa.me/573007269024?text=Hola,%20me%20interesa%20el%20producto:%20${encodeURIComponent(selectedProduct.titulo)}%20-%20$${encodeURIComponent(formatPrice(selectedProduct.precio))}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1"
-                >
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-amber-600 px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
-                    </svg>
-                    Contactar por WhatsApp
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
+                  <a
+                    href={`https://wa.me/573007269024?text=Hola,%20me%20interesa%20el%20producto:%20${encodeURIComponent(selectedProduct.titulo)}%20-%20$${encodeURIComponent(formatPrice(selectedProduct.precio))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1"
+                  >
+                    <button className="w-full bg-green-600 hover:bg-green-700 text-amber-600 px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
+                      </svg>
+                      Contactar por WhatsApp
+                    </button>
+                  </a>
+                  <button
+                    onClick={closeModal}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+                  >
+                    Cerrar
                   </button>
-                </a>
-                <button
-                  onClick={closeModal}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
-                >
-                  Cerrar
-                </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <style jsx>{`
+        <style jsx>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -454,13 +495,13 @@ const LaFlecha = () => {
           }
         }
       `}</style>
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
   // Componente de testimonios actualizado para usar testimonios reales
   const TestimonialsSection = () => {
-    // Estado para controlar cuántas reseñas mostrar
+    // Estado para controlar cuÃ¡ntas reseÃ±as mostrar
     const [showAllTestimonials, setShowAllTestimonials] = useState(false);
 
     if (testimoniosPublicos.length === 0) {
@@ -493,7 +534,7 @@ const LaFlecha = () => {
       );
     }
 
-    // Determinar cuántas reseñas mostrar
+    // Determinar cuÃ¡ntas reseÃ±as mostrar
     const testimoniosToShow = showAllTestimonials ? testimoniosPublicos : testimoniosPublicos.slice(0, 6);
     const hasMoreTestimonials = testimoniosPublicos.length > 6;
 
@@ -505,7 +546,7 @@ const LaFlecha = () => {
               Lo que dicen nuestros <span className="text-amber-600">clientes</span>
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              La satisfacción de nuestros clientes es nuestra mayor recompensa
+              La satisfacciÃ³n de nuestros clientes es nuestra mayor recompensa
             </p>
             {testimoniosPublicos.length > 0 && (
               <p className="text-sm text-amber-600 font-medium mt-2">
@@ -533,7 +574,7 @@ const LaFlecha = () => {
                   </p>
                 </div>
 
-                {/* Información del cliente */}
+                {/* InformaciÃ³n del cliente */}
                 <div className="border-t pt-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -583,9 +624,9 @@ const LaFlecha = () => {
             ))}
           </div>
 
-          {/* Controles de visualización */}
+          {/* Controles de visualizaciÃ³n */}
           <div className="text-center space-y-4">
-            {/* Botón para ver más/menos testimonios */}
+            {/* BotÃ³n para ver mÃ¡s/menos testimonios */}
             {hasMoreTestimonials && (
               <button
                 onClick={() => setShowAllTestimonials(!showAllTestimonials)}
@@ -605,7 +646,7 @@ const LaFlecha = () => {
               </button>
             )}
 
-            {/* Botón para agregar nuevo testimonio */}
+            {/* BotÃ³n para agregar nuevo testimonio */}
             <button
               onClick={() => setShowTestimonialForm(true)}
               className="bg-amber-600 hover:bg-amber-700 text-amber-600 px-8 py-3 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
@@ -661,13 +702,13 @@ const LaFlecha = () => {
               <Truck className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-semibold mb-2">4. Entrega</h3>
-            <p className="text-gray-300">Recibe tu joya única en un tiempo estimado</p>
+            <p className="text-gray-300">Recibe tu joya úica en un tiempo estimado</p>
           </div>
         </div>
 
         <div className="text-center mt-12">
           <a
-            href="https://wa.me/573007269024?text=Hola,%20me%20gustaría%20conocer%20más%20sobre%20el%20proceso%20de%20personalización"
+            href="https://wa.me/573007269024?text=Hola,%20me%20gustarÃ­a%20conocer%20mÃ¡s%20sobre%20el%20proceso%20de%20personalizaciÃ³n"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -681,23 +722,20 @@ const LaFlecha = () => {
     </section>
   );
 
-  const Carousel = ({ categoria, titulo }) => {
-    // Obtener los productos correctos según el tab activo
-    const items = activeTab === 'terminados'
-      ? productos[categoria]
-      : productosDisponibles[categoria];
+  const Carousel = ({ categoria, titulo, subtipoSeleccionado }) => {
+    // CAMBIO: Filtrar productos por subtipo
+    const allItems = activeTab === 'terminados' ? productos[categoria] : productosDisponibles[categoria];
 
-    // Obtener el índice actual, asegurándonos de que sea válido
+    const items = allItems?.filter(item => {
+      if (!item.subtipo) {
+        return subtipoSeleccionado === CATEGORY_SUBTYPES[categoria][0];
+      }
+      return item.subtipo === subtipoSeleccionado;
+    }) || [];
+
     const currentIndex = currentSlides[categoria] || 0;
 
-    // Debug logging
-    console.log(`Carousel ${categoria} (${activeTab}):`, {
-      currentIndex,
-      itemsLength: items?.length || 0,
-      items: items?.map(item => item.titulo) || []
-    });
-
-    // Efecto para resetear el índice cuando cambia el activeTab
+    // CAMBIO: Agregar subtipoSeleccionado como dependencia
     useEffect(() => {
       if (items && items.length > 0) {
         if (currentIndex >= items.length) {
@@ -707,7 +745,8 @@ const LaFlecha = () => {
           }));
         }
       }
-    }, [activeTab, items?.length, categoria, currentIndex]);
+    }, [activeTab, items?.length, categoria, currentIndex, subtipoSeleccionado]);
+
 
     if (!items || items.length === 0) {
       return (
@@ -720,7 +759,7 @@ const LaFlecha = () => {
             <p className="text-gray-400 text-sm mt-2">en {titulo.toLowerCase()}</p>
             <div className="mt-4 px-4 py-2 bg-amber-100 rounded-lg">
               <p className="text-amber-700 text-xs text-center">
-                Los productos aparecerán aquí automáticamente cuando se agreguen
+                Los productos aparecerán aquí­ automáticamente cuando se agreguen
               </p>
             </div>
           </div>
@@ -728,16 +767,16 @@ const LaFlecha = () => {
       );
     }
 
-    // Asegurar que el currentIndex esté dentro del rango válido
+    // Asegurar que el currentIndex estÃ© dentro del rango vÃ¡lido
     const safeCurrentIndex = Math.max(0, Math.min(currentIndex, items.length - 1));
     const currentItem = items[safeCurrentIndex];
 
     if (!currentItem) {
-      console.error(`No se encontró producto en índice ${safeCurrentIndex} para ${categoria}`);
+      console.error(`No se encontrÃ³ producto en Ã­ndice ${safeCurrentIndex} para ${categoria}`);
       return null;
     }
 
-    // Funciones de navegación
+    // Funciones de navegaciÃ³n
     const handleNextSlide = () => {
       const newIndex = (safeCurrentIndex + 1) % items.length;
       console.log(`Next slide para ${categoria}: ${safeCurrentIndex} -> ${newIndex}`);
@@ -841,10 +880,16 @@ const LaFlecha = () => {
     );
   };
 
-  const ListView = ({ categoria, titulo }) => {
-    const items = activeTab === 'terminados'
-      ? productos[categoria]
-      : productosDisponibles[categoria];
+  const ListView = ({ categoria, titulo, subtipoSeleccionado }) => {
+    // CAMBIO: Aplicar filtro por subtipo
+    const allItems = activeTab === 'terminados' ? productos[categoria] : productosDisponibles[categoria];
+
+    const items = allItems?.filter(item => {
+      if (!item.subtipo) {
+        return subtipoSeleccionado === CATEGORY_SUBTYPES[categoria][0];
+      }
+      return item.subtipo === subtipoSeleccionado;
+    }) || [];
 
     if (!items || items.length === 0) {
       return (
@@ -898,7 +943,7 @@ const LaFlecha = () => {
   };
 
   // Formulario para nuevo testimonio
-  // Formulario para nuevo testimonio - VERSIÓN CORREGIDA
+  // Formulario para nuevo testimonio - VERSIÃ“N CORREGIDA
   const TestimonialForm = () => {
     // Mover el estado local dentro del componente para evitar re-renders innecesarios
     const [formData, setFormData] = useState({
@@ -911,7 +956,7 @@ const LaFlecha = () => {
       recibirNoticias: false // Nuevo campo para el checkbox
     });
 
-    // Función optimizada para manejar cambios en los inputs
+    // FunciÃ³n optimizada para manejar cambios en los inputs
     const handleInputChange = useCallback((field, value) => {
       setFormData(prev => ({
         ...prev,
@@ -919,9 +964,9 @@ const LaFlecha = () => {
       }));
     }, []);
 
-    // Función para enviar notificación por WhatsApp
+    // FunciÃ³n para enviar notificaciÃ³n por WhatsApp
     const sendWhatsAppNotification = (userData) => {
-      const message = `🔔 *HOLA QUIERO RESIVIR OFERTAS Y PRODUCTOS EXCLUSIVOS ANTES QUE NADIE!* 🔔\n\nMi nombre es ${userData.nombre}  y quiero ser de los primeros en recibir las nuevas ofertas y productos que ofrece la tienda.\n\n📱 Teléfono: ${userData.telefono}\n📧 Email: ${userData.email}\n\n¡Por favor agrégame a la lista!`;
+      const message = `*HOLA QUIERO RESIVIR OFERTAS Y PRODUCTOS EXCLUSIVOS ANTES QUE NADIE!*\n\nMi nombre es ${userData.nombre}  y quiero ser de los primeros en recibir las nuevas ofertas y productos que ofrece la tienda.\n\nTeléfono: ${userData.telefono}\n Email: ${userData.email}\n\n¡Por favor agrégame a la lista!`;
 
       const encodedMessage = encodeURIComponent(message);
       const whatsappURL = `https://wa.me/573007269024?text=${encodedMessage}`;
@@ -930,7 +975,7 @@ const LaFlecha = () => {
       window.open(whatsappURL, '_blank');
     };
 
-    // Función para manejar el envío del formulario
+    // FunciÃ³n para manejar el envÃ­o del formulario
     const handleSubmit = async (e) => {
       e.preventDefault();
       setTestimonialSubmitting(true);
@@ -939,7 +984,7 @@ const LaFlecha = () => {
         // Agregar el testimonio usando el contexto
         await addTestimonio(formData);
 
-        // Si el usuario quiere recibir noticias Y tiene teléfono, enviar notificación
+        // Si el usuario quiere recibir noticias Y tiene telÃ©fono, enviar notificaciÃ³n
         if (formData.recibirNoticias && (formData.telefono || formData.email)) {
           sendWhatsAppNotification(formData);
         }
@@ -958,9 +1003,9 @@ const LaFlecha = () => {
         // Cerrar el formulario
         setShowTestimonialForm(false);
 
-        // Mensaje de éxito personalizado
+        // Mensaje de Ã©xito personalizado
         const successMessage = formData.recibirNoticias
-          ? '¡Gracias por tu testimonio! Te contactaremos pronto para mantenerte al día con nuestros nuevos productos.'
+          ? 'Â¡Gracias por tu testimonio! Te contactaremos pronto para mantenerte al dÃ­a con nuestros nuevos productos.'
           : '¡Gracias por compartir tu experiencia!';
 
         alert(successMessage);
@@ -1018,7 +1063,7 @@ const LaFlecha = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  Email (Opcional)
                 </label>
                 <input
                   type="email"
@@ -1033,7 +1078,7 @@ const LaFlecha = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Teléfono
+                  Teléfono (Recomendado)
                 </label>
                 <input
                   type="tel"
@@ -1106,7 +1151,7 @@ const LaFlecha = () => {
                   />
                   <div>
                     <label htmlFor="recibirNoticias" className="text-sm font-medium text-gray-800 cursor-pointer">
-                      🌟 ¡Quiero ser de los primeros!
+                      ¡Quiero ser de los primeros!
                     </label>
                     <p className="text-xs text-gray-600 mt-1 leading-relaxed">
                       Recibe información de nuevos productos y ofertas exclusivas antes que nadie.
@@ -1119,7 +1164,7 @@ const LaFlecha = () => {
 
                 {formData.recibirNoticias && !formData.telefono && !formData.email && (
                   <div className="mt-2 p-2 bg-amber-100 border border-amber-300 rounded text-xs text-amber-800">
-                    ⚠️ Por favor, proporciona tu teléfono o email para poder contactarte.
+                    Por favor, proporciona tu teléfono o email para poder contactarte.
                   </div>
                 )}
               </div>
@@ -1128,7 +1173,7 @@ const LaFlecha = () => {
                 <button
                   type="submit"
                   disabled={testimonialSubmitting || (formData.recibirNoticias && !formData.telefono && !formData.email)}
-                  className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center"
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-amber-600 px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center"
                 >
                   {testimonialSubmitting ? (
                     <>
@@ -1155,11 +1200,17 @@ const LaFlecha = () => {
     );
   };
 
-  // Componente para mostrar todos los productos de una categoría
-  const AllProductsView = ({ categoria, titulo }) => {
-    const items = activeTab === 'terminados'
-      ? productos[categoria]
-      : productosDisponibles[categoria];
+  // Componente para mostrar todos los productos de una categorÃ­a
+  const AllProductsView = ({ categoria, titulo, subtipoSeleccionado }) => {
+    // CAMBIO: Aplicar filtro por subtipo
+    const allItems = activeTab === 'terminados' ? productos[categoria] : productosDisponibles[categoria];
+
+    const items = allItems?.filter(item => {
+      if (!item.subtipo) {
+        return subtipoSeleccionado === CATEGORY_SUBTYPES[categoria][0];
+      }
+      return item.subtipo === subtipoSeleccionado;
+    }) || [];
 
     if (!items || items.length === 0) {
       return (
@@ -1209,12 +1260,12 @@ const LaFlecha = () => {
     );
   };
 
-  // Componente para mostrar TODOS los productos de TODAS las categorías
+  // Componente para mostrar TODOS los productos de TODAS las categorÃ­as
   const AllCategoriesView = () => {
     const currentProducts = activeTab === 'terminados' ? productos : productosDisponibles;
     const allItems = [];
 
-    // Recopilar todos los productos de todas las categorías
+    // Recopilar todos los productos de todas las categorÃ­as
     Object.entries(currentProducts).forEach(([categoria, items]) => {
       if (items && Array.isArray(items)) {
         items.forEach(item => {
@@ -1231,7 +1282,7 @@ const LaFlecha = () => {
         <div className="bg-white rounded-xl p-12 shadow-lg text-center">
           <RefreshCw className="w-16 h-16 text-gray-400 mx-auto mb-4 animate-pulse" />
           <h3 className="text-xl font-semibold text-gray-800 mb-2">No hay productos disponibles</h3>
-          <p className="text-gray-500">Los productos aparecerán aquí cuando se agreguen</p>
+          <p className="text-gray-500">Los productos aparecerÃ¡n aquÃ­ cuando se agreguen</p>
         </div>
       );
     }
@@ -1298,7 +1349,7 @@ const LaFlecha = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section Mejorado */}
       <section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-        {/* Efecto de partículas de fondo */}
+        {/* Efecto de partÃ­culas de fondo */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
           <div className="absolute top-32 right-20 w-1 h-1 bg-amber-300 rounded-full animate-pulse delay-75"></div>
@@ -1318,7 +1369,7 @@ const LaFlecha = () => {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20más%20información"
+              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20mÃ¡s%20informaciÃ³n"
               target="_blank"
               rel="noopener noreferrer"
               className="group"
@@ -1357,7 +1408,7 @@ const LaFlecha = () => {
         </div>
       </section>
 
-      {/* Sección de características mejorada */}
+      {/* SecciÃ³n de caracterÃ­sticas mejorada */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -1382,7 +1433,7 @@ const LaFlecha = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-xl transition-shadow">
                 <Shield className="w-10 h-10 text-amber-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Garantía de por vida</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Garantí­a de por vida</h3>
               <p className="text-gray-600 leading-relaxed">Protección completa y mantenimiento para tus joyas</p>
             </div>
 
@@ -1390,8 +1441,8 @@ const LaFlecha = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:shadow-xl transition-shadow">
                 <Truck className="w-10 h-10 text-amber-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Envíos Nacionales</h3>
-              <p className="text-gray-600 leading-relaxed">Entrega segura y rápida en todo el territorio nacional</p>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Enví­os Nacionales</h3>
+              <p className="text-gray-600 leading-relaxed">Entrega segura en todo el territorio nacional</p>
             </div>
 
             <div className="text-center group hover:scale-105 transition-transform duration-300">
@@ -1405,13 +1456,13 @@ const LaFlecha = () => {
         </div>
       </section>
 
-      {/* Nueva sección de proceso */}
+      {/* Nueva secciÃ³n de proceso */}
       <ProcessSection />
 
-      {/* Nueva sección de testimonios */}
+      {/* Nueva secciÃ³n de testimonios */}
       <TestimonialsSection />
 
-      {/* Sección de productos */}
+      {/* SecciÃ³n de productos */}
       <section id="productos" className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -1419,7 +1470,7 @@ const LaFlecha = () => {
               Nuestra <span className="text-amber-600">Colección</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Cada pieza es cuidadosamente seleccionada y hecha para ofrecerte lo mejor en joyería de lujo.
+              Cada pieza es cuidadosamente seleccionada y hecha para ofrecerte lo mejor en joyerí­a de lujo.
               Descubre diseños únicos que reflejan tu personalidad y estilo.
             </p>
           </div>
@@ -1474,7 +1525,7 @@ const LaFlecha = () => {
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-amber-600 hover:text-gray-600 hover:bg-gray-50'
                   }`}
-                title="Ver todos por categoría"
+                title="Ver todos por categorÃ­a"
               >
                 <Eye className="w-5 h-5" />
               </button>
@@ -1490,31 +1541,123 @@ const LaFlecha = () => {
               </button>
             </div>
           </div>
-
           {viewMode === 'grid' && (
-            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-              <Carousel categoria="anillos" titulo="Anillos" />
-              <Carousel categoria="collares" titulo="Collares" />
-              <Carousel categoria="aretes" titulo="Aretes" />
-              <Carousel categoria="pulseras" titulo="Pulseras" />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Anillos</h3>
+                <SubtypeSelector categoria="anillos" titulo="Anillos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="anillos" titulo={selectedSubtypes.anillos} subtipoSeleccionado={selectedSubtypes.anillos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Collares</h3>
+                <SubtypeSelector categoria="collares" titulo="Collares" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="collares" titulo={selectedSubtypes.collares} subtipoSeleccionado={selectedSubtypes.collares} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Aretes</h3>
+                <SubtypeSelector categoria="aretes" titulo="Aretes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="aretes" titulo={selectedSubtypes.aretes} subtipoSeleccionado={selectedSubtypes.aretes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Pulseras</h3>
+                <SubtypeSelector categoria="pulseras" titulo="Pulseras" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="pulseras" titulo={selectedSubtypes.pulseras} subtipoSeleccionado={selectedSubtypes.pulseras} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Topos</h3>
+                <SubtypeSelector categoria="topos" titulo="Topos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="topos" titulo={selectedSubtypes.topos} subtipoSeleccionado={selectedSubtypes.topos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Dijes</h3>
+                <SubtypeSelector categoria="dijes" titulo="Dijes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="dijes" titulo={selectedSubtypes.dijes} subtipoSeleccionado={selectedSubtypes.dijes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Juegos</h3>
+                <SubtypeSelector categoria="juegos" titulo="Juegos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <Carousel categoria="juegos" titulo={selectedSubtypes.juegos} subtipoSeleccionado={selectedSubtypes.juegos} />
+              </div>
             </div>
           )}
 
           {viewMode === 'list' && (
             <div className="space-y-8">
-              <ListView categoria="anillos" titulo="Anillos" />
-              <ListView categoria="collares" titulo="Collares" />
-              <ListView categoria="aretes" titulo="Aretes" />
-              <ListView categoria="pulseras" titulo="Pulseras" />
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Anillos</h3>
+                <SubtypeSelector categoria="anillos" titulo="Anillos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="anillos" titulo={selectedSubtypes.anillos} subtipoSeleccionado={selectedSubtypes.anillos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Collares</h3>
+                <SubtypeSelector categoria="collares" titulo="Collares" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="collares" titulo={selectedSubtypes.collares} subtipoSeleccionado={selectedSubtypes.collares} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Aretes</h3>
+                <SubtypeSelector categoria="aretes" titulo="Aretes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="aretes" titulo={selectedSubtypes.aretes} subtipoSeleccionado={selectedSubtypes.aretes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Pulseras</h3>
+                <SubtypeSelector categoria="pulseras" titulo="Pulseras" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="pulseras" titulo={selectedSubtypes.pulseras} subtipoSeleccionado={selectedSubtypes.pulseras} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Topos</h3>
+                <SubtypeSelector categoria="topos" titulo="Topos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="topos" titulo={selectedSubtypes.topos} subtipoSeleccionado={selectedSubtypes.topos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Dijes</h3>
+                <SubtypeSelector categoria="dijes" titulo="Dijes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="dijes" titulo={selectedSubtypes.dijes} subtipoSeleccionado={selectedSubtypes.dijes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Juegos</h3>
+                <SubtypeSelector categoria="juegos" titulo="Juegos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="juegos" titulo={selectedSubtypes.juegos} subtipoSeleccionado={selectedSubtypes.juegos} />
+              </div>
             </div>
           )}
 
           {viewMode === 'category' && (
             <div className="space-y-8">
-              <AllProductsView categoria="anillos" titulo="Anillos" />
-              <AllProductsView categoria="collares" titulo="Collares" />
-              <AllProductsView categoria="aretes" titulo="Aretes" />
-              <AllProductsView categoria="pulseras" titulo="Pulseras" />
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Anillos</h3>
+                <SubtypeSelector categoria="anillos" titulo="Anillos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <ListView categoria="anillos" titulo={selectedSubtypes.anillos} subtipoSeleccionado={selectedSubtypes.anillos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Collares</h3>
+                <SubtypeSelector categoria="collares" titulo="Collares" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="collares" titulo={selectedSubtypes.collares} subtipoSeleccionado={selectedSubtypes.collares} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Aretes</h3>
+                <SubtypeSelector categoria="aretes" titulo="Aretes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="aretes" titulo={selectedSubtypes.aretes} subtipoSeleccionado={selectedSubtypes.aretes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Pulseras</h3>
+                <SubtypeSelector categoria="pulseras" titulo="Pulseras" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="pulseras" titulo={selectedSubtypes.pulseras} subtipoSeleccionado={selectedSubtypes.pulseras} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Topos</h3>
+                <SubtypeSelector categoria="topos" titulo="Topos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="topos" titulo={selectedSubtypes.topos} subtipoSeleccionado={selectedSubtypes.topos} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Dijes</h3>
+                <SubtypeSelector categoria="dijes" titulo="Dijes" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="dijes" titulo={selectedSubtypes.dijes} subtipoSeleccionado={selectedSubtypes.dijes} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">Juegos</h3>
+                <SubtypeSelector categoria="juegos" titulo="Juegos" selectedSubtypes={selectedSubtypes} setSelectedSubtypes={setSelectedSubtypes} />
+                <AllProductsView categoria="juegos" titulo={selectedSubtypes.juegos} subtipoSeleccionado={selectedSubtypes.juegos} />
+              </div>
             </div>
           )}
 
@@ -1524,7 +1667,7 @@ const LaFlecha = () => {
         </div>
       </section>
 
-      {/* Nueva sección de llamada a la acción */}
+      {/* Nueva secciÃ³n de llamada a la acciÃ³n */}
       <section className="py-20 bg-gradient-to-r from-amber-500 to-amber-600">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -1537,7 +1680,7 @@ const LaFlecha = () => {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20gustaría%20iniciar%20un%20proyecto%20personalizado"
+              href="https://wa.me/573007269024?text=Hola,%20me%20gustarÃ­a%20iniciar%20un%20proyecto%20personalizado"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -1548,13 +1691,13 @@ const LaFlecha = () => {
             </a>
 
             <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20ver%20más%20productos%20disponibles"
+              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20ver%20mÃ¡s%20productos%20disponibles"
               target="_blank"
               rel="noopener noreferrer"
             >
               <button className="bg-white text-amber-600 hover:bg-gray-50 px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-3 mx-auto sm:mx-0">
                 <Star className="w-6 h-6" />
-                Ver Más Productos
+                Ver MÃ¡s Productos
               </button>
             </a>
           </div>

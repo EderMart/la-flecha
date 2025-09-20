@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapPin, Phone, Mail } from 'lucide-react'
+import { MapPin, Phone, Mail, ShieldCheck } from 'lucide-react'
 
 export const Footer = () => {
   return (
@@ -32,16 +32,16 @@ export const Footer = () => {
               <div className="flex items-start space-x-3 text-gray-300">
                 <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-amber-400" />
                 <p className="text-sm sm:text-base leading-relaxed">
-                  Calle bolívar 40-20, Zaragoza, Colombia
+                  Calle bolívar 42-20, Zaragoza, Antioquia, Colombia
                 </p>
               </div>
               <div className="flex items-center space-x-3 text-gray-300">
                 <Phone className="w-5 h-5 flex-shrink-0 text-amber-400" />
                 <a 
-                  href="tel:+573007269024" 
+                  href="tel:+573216414607" 
                   className="text-sm sm:text-base hover:text-amber-400 transition-colors duration-200"
                 >
-                  +57 300 7269024
+                  +57 321 641 4607
                 </a>
               </div>
               <div className="flex items-center space-x-3 text-gray-300">
@@ -57,7 +57,7 @@ export const Footer = () => {
           </div>
 
           {/* Hours Section */}
-          <div className="space-y-4 md:col-span-2 lg:col-span-1">
+          <div className="space-y-4">
             <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Horarios</h4>
             <div className="space-y-2">
               <div className="flex justify-between items-center text-gray-300 text-sm sm:text-base">
@@ -76,13 +76,38 @@ export const Footer = () => {
           </div>
         </div>
 
+        {/* Certification Section */}
+        <div className="border-t border-gray-800 mt-8 pt-6">
+          <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/camara-comercio.png" 
+                  alt="Cámara de Comercio del Magdalena Medio y Nordeste Antioqueño" 
+                  className="h-12 w-auto"
+                />
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start space-x-2 mb-2">
+                  <ShieldCheck className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-medium text-green-400">Empresa Verificada</span>
+                </div>
+                <p className="text-xs text-gray-400">
+                  Establecimiento registrado desde marzo 2018
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Footer Bottom */}
-        <div className="border-t border-gray-800 mt-8 sm:mt-12 pt-6 sm:pt-8">
+        <div className="border-t border-gray-800 mt-6 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <p className="text-gray-400 text-sm sm:text-base text-center sm:text-left">
-              &copy; 2018 La Flecha joyería. Todos los derechos reservados.
-            </p>
-            
+            <div className="text-center sm:text-left">
+              <p className="text-gray-400 text-sm sm:text-base">
+                &copy; Marzo de 2018 La Flecha compra de oro. Todos los derechos reservados.
+              </p>
+            </div>
           </div>
         </div>
       </div>
