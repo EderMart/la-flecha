@@ -24,6 +24,9 @@ const INITIAL_PRODUCTS = {
   collares: [],
   aretes: [],
   pulseras: [],
+   topos: [],        
+  dijes: [],        
+  juegos: [] 
 };
 
 // ✅ Inicial vacío para disponibles
@@ -32,6 +35,9 @@ const INITIAL_AVAILABLE_PRODUCTS = {
   collares: [],
   aretes: [],
   pulseras: [],
+  topos: [],        
+  dijes: [],        
+  juegos: [] 
 };
 
 // ✅ Testimonios iniciales de ejemplo
@@ -204,10 +210,14 @@ export const ProductProvider = ({ children }) => {
   const unsubTestimonials = onSnapshot(
     q,
     (snapshot) => {
-      const testimoniosData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+     const testimoniosData = snapshot.docs.map(doc => {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    ...data,
+    fecha: data.fecha?.toDate ? data.fecha.toDate() : data.fecha
+  };
+});
       setTestimonios(testimoniosData);
     },
     (error) => console.error("Error escuchando testimonios:", error)
@@ -316,6 +326,7 @@ export const ProductProvider = ({ children }) => {
       material: newProduct.material || "",
       peso: newProduct.peso || "",
       tamano: newProduct.tamano || "",
+       subtipo: newProduct.subtipo || "",
     }, { merge: true });
     await markLastUpdated();
   };
@@ -344,6 +355,7 @@ export const ProductProvider = ({ children }) => {
       material: updatedProduct.material || "",
       peso: updatedProduct.peso || "",
       tamano: updatedProduct.tamano || "",
+      subtipo: updatedProduct.subtipo || "",
     }, { merge: true });
     await markLastUpdated();
   };

@@ -12,11 +12,26 @@ const formatPrice = (p) => {
   return n.toLocaleString('es-CO'); // fuerza puntos como separador de miles
 };
 
+const CATEGORY_SUBTYPES = {
+  anillos: ['Anillos en oro 18k', 'Anillos tejidos'],
+  pulseras: ['Pulseras oro 18k', 'Pulseras tejidas'],
+  aretes: ['Aretes tradicionales'],
+  collares: ['Collares tradicionales'],
+  topos: ['Topos en oro 18k', 'Topos con piedras preciosas'],
+  dijes: ['Dijes tradicionales'],
+  juegos: [
+    'Juego de pulseras y anillo',
+    'Juego de cadena y dije', 
+    'Juego de cadena, pulsera y anillo'
+  ]
+};
+
 
 const AdministrationPanel = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [previewImages, setPreviewImages] = useState([]);
   const [loginError, setLoginError] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,8 +43,28 @@ const AdministrationPanel = () => {
   const [notification, setNotification] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
 
-  // Estado de autenticación
+  // Estado de autenticaciÃ³n
   const { user, loading: authLoading } = useAuthState();
+  
+ const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result;
+        const currentImages = editingProduct.imagenes || [];
+        const newImages = [...currentImages, base64];
+        
+        setEditingProduct({ 
+          ...editingProduct, 
+          imagenes: newImages,
+          imagen: newImages[0] || base64
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   // Usar el contexto de productos
   const {
@@ -85,7 +120,7 @@ const AdministrationPanel = () => {
       if (isAdminUser(result.user)) {
         setEmail('');
         setPassword('');
-        // El useEffect se encargará de mostrar el admin
+        // El useEffect se encargarÃ¡ de mostrar el admin
       } else {
         setLoginError('No tienes permisos de administrador');
         await logoutAdmin();
@@ -102,81 +137,82 @@ const AdministrationPanel = () => {
       setEditingProduct(null);
       setEmail('');
       setPassword('');
-      showNotification('Sesión cerrada');
+      showNotification('SesiÃ³n cerrada');
     }
   };
 
- const handleEdit = (categoria, producto) => {
-  // Procesar imágenes para edición
-  let imagenesArray = [];
-  
-  if (producto.imagenes && Array.isArray(producto.imagenes)) {
-    imagenesArray = producto.imagenes.filter(img => img && img.trim());
-  } else if (producto.imagen && producto.imagen.trim()) {
-    imagenesArray = [producto.imagen.trim()];
-  }
+  const handleEdit = (categoria, producto) => {
+    // Procesar imÃ¡genes para ediciÃ³n
+    let imagenesArray = [];
 
-  setEditingProduct({ 
-    categoria, 
-    tipo: productType, 
-    ...producto,
-    imagenes: imagenesArray,
-    newImageUrl: ''
-  });
-};
+    if (producto.imagenes && Array.isArray(producto.imagenes)) {
+      imagenesArray = producto.imagenes.filter(img => img && img.trim());
+    } else if (producto.imagen && producto.imagen.trim()) {
+      imagenesArray = [producto.imagen.trim()];
+    }
+
+    setEditingProduct({
+      categoria,
+      tipo: productType,
+      ...producto,
+      imagenes: imagenesArray,
+      newImageUrl: ''
+    });
+  };
 
   const handleSave = async () => {
-  if (editingProduct) {
-    try {
-      // Asegurar que tenemos un array de imágenes válido
-      let imagenesArray = [];
-      
-      if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
-        imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
-      } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
-        imagenesArray = [editingProduct.imagen.trim()];
+    if (editingProduct) {
+      try {
+        // Asegurar que tenemos un array de imÃ¡genes vÃ¡lido
+        let imagenesArray = [];
+
+        if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
+          imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
+        } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
+          imagenesArray = [editingProduct.imagen.trim()];
+        }
+
+        // Si no hay imÃ¡genes en el array pero sÃ­ imagen principal, agregarla
+        if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
+          imagenesArray = [editingProduct.imagen.trim()];
+        }
+
+        // Asegurar que la primera imagen del array sea la imagen principal
+        const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
+
+        const updatedProduct = {
+          id: editingProduct.id,
+          titulo: editingProduct.titulo,
+          precio: editingProduct.precio,
+          descripcion: editingProduct.descripcion,
+          imagen: imagenPrincipal, // Imagen principal
+          imagenes: imagenesArray, // Array de todas las imÃ¡genes
+          material: editingProduct.material || "",
+          peso: editingProduct.peso || "",
+          tamano: editingProduct.tamano || "",
+          subtipo: editingProduct.subtipo || "",
+        };
+
+        console.log('Producto final a guardar:', updatedProduct);
+
+        if (editingProduct.tipo === 'terminados') {
+          await updateProduct(editingProduct.categoria, updatedProduct);
+        } else {
+          await updateProductoDisponible(editingProduct.categoria, updatedProduct);
+        }
+
+        await markLastUpdated();
+        showNotification('Producto actualizado correctamente');
+        setEditingProduct(null);
+      } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        showNotification('Error al actualizar el producto', 'error');
       }
-
-      // Si no hay imágenes en el array pero sí imagen principal, agregarla
-      if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
-        imagenesArray = [editingProduct.imagen.trim()];
-      }
-
-      // Asegurar que la primera imagen del array sea la imagen principal
-      const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
-
-      const updatedProduct = {
-        id: editingProduct.id,
-        titulo: editingProduct.titulo,
-        precio: editingProduct.precio,
-        descripcion: editingProduct.descripcion,
-        imagen: imagenPrincipal, // Imagen principal
-        imagenes: imagenesArray, // Array de todas las imágenes
-        material: editingProduct.material || "",
-        peso: editingProduct.peso || "", 
-        tamano: editingProduct.tamano || "",
-      };
-
-      console.log('Producto final a guardar:', updatedProduct);
-
-      if (editingProduct.tipo === 'terminados') {
-        await updateProduct(editingProduct.categoria, updatedProduct);
-      } else {
-        await updateProductoDisponible(editingProduct.categoria, updatedProduct);
-      }
-
-      await markLastUpdated();
-      showNotification('Producto actualizado correctamente');
-      setEditingProduct(null);
-    } catch (error) {
-      console.error('Error al actualizar producto:', error);
-      showNotification('Error al actualizar el producto', 'error');
     }
-  }
-};
+  };
 
   const handleDelete = async (categoria, id) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+    if (confirm('Â¿EstÃ¡s seguro de que quieres eliminar este producto?')) {
       try {
         if (productType === 'terminados') {
           await deleteProduct(categoria, id);
@@ -193,106 +229,107 @@ const AdministrationPanel = () => {
   };
 
   const handleAddNew = () => {
-  const currentProductsForType = productType === 'terminados' ? productos : productosDisponibles;
-  
-  let maxId = 0;
-  Object.values(currentProductsForType).forEach(categoria => {
-    if (categoria && Array.isArray(categoria)) {
-      categoria.forEach(producto => {
-        if (producto.id > maxId) {
-          maxId = producto.id;
-        }
-      });
-    }
-  });
-  
-  const newId = maxId + 1;
-  
-  setEditingProduct({
-    categoria: activeCategory,
-    tipo: productType,
-    id: newId,
-    titulo: '',
-    precio: '',
-    descripcion: '',
-    imagen: '',
-    imagenes: [], // Inicializar como array vacío
-    material: '',
-    peso: '',
-    tamano: '',
-    newImageUrl: '' // Inicializar campo para nueva URL
-  });
-};
+    const currentProductsForType = productType === 'terminados' ? productos : productosDisponibles;
+
+    let maxId = 0;
+    Object.values(currentProductsForType).forEach(categoria => {
+      if (categoria && Array.isArray(categoria)) {
+        categoria.forEach(producto => {
+          if (producto.id > maxId) {
+            maxId = producto.id;
+          }
+        });
+      }
+    });
+
+    const newId = maxId + 1;
+
+    setEditingProduct({
+      categoria: activeCategory,
+      tipo: productType,
+      id: newId,
+      titulo: '',
+      precio: '',
+      descripcion: '',
+      imagen: '',
+      imagenes: [], // Inicializar como array vacÃ­o
+      material: '',
+      peso: '',
+      tamano: '',
+      newImageUrl: '' // Inicializar campo para nueva URL
+    });
+  };
 
   const handleAddNewProduct = async () => {
-  if (editingProduct && editingProduct.titulo && editingProduct.precio) {
-    try {
-      // Verificar que el ID no exista ya
-      const currentProductsForType = editingProduct.tipo === 'terminados' ? productos : productosDisponibles;
-      const existingIds = [];
-      
-      Object.values(currentProductsForType).forEach(categoria => {
-        if (categoria && Array.isArray(categoria)) {
-          categoria.forEach(producto => {
-            existingIds.push(producto.id);
-          });
+    if (editingProduct && editingProduct.titulo && editingProduct.precio) {
+      try {
+        // Verificar que el ID no exista ya
+        const currentProductsForType = editingProduct.tipo === 'terminados' ? productos : productosDisponibles;
+        const existingIds = [];
+
+        Object.values(currentProductsForType).forEach(categoria => {
+          if (categoria && Array.isArray(categoria)) {
+            categoria.forEach(producto => {
+              existingIds.push(producto.id);
+            });
+          }
+        });
+
+        // Si el ID ya existe, generar uno nuevo
+        let finalId = editingProduct.id;
+        while (existingIds.includes(finalId)) {
+          finalId++;
         }
-      });
-      
-      // Si el ID ya existe, generar uno nuevo
-      let finalId = editingProduct.id;
-      while (existingIds.includes(finalId)) {
-        finalId++;
+
+        // Procesar imÃ¡genes de la misma manera
+        let imagenesArray = [];
+
+        if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
+          imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
+        } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
+          imagenesArray = [editingProduct.imagen.trim()];
+        }
+
+        // Si no hay imÃ¡genes en el array pero sÃ­ imagen principal, agregarla
+        if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
+          imagenesArray = [editingProduct.imagen.trim()];
+        }
+
+        // Asegurar que la primera imagen del array sea la imagen principal
+        const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
+
+        const newProduct = {
+          id: finalId,
+          titulo: editingProduct.titulo.trim(),
+          precio: editingProduct.precio.toString(),
+          descripcion: editingProduct.descripcion.trim(),
+          imagen: imagenPrincipal, // Imagen principal
+          imagenes: imagenesArray, // Array de todas las imÃ¡genes
+          material: editingProduct.material?.trim() || "",
+          peso: editingProduct.peso?.trim() || "",
+          tamano: editingProduct.tamano?.trim() || "",
+          subtipo: editingProduct.subtipo?.trim() || "",
+        };
+
+        console.log('Nuevo producto a crear:', newProduct);
+
+        if (editingProduct.tipo === 'terminados') {
+          await addProduct(editingProduct.categoria, newProduct);
+        } else {
+          await addProductoDisponible(editingProduct.categoria, newProduct);
+        }
+
+        await markLastUpdated();
+        setEditingProduct(null);
+        showNotification(`Producto agregado correctamente con ID: ${finalId}`);
+      } catch (error) {
+        console.error('Error al agregar producto:', error);
+        showNotification('Error al agregar el producto', 'error');
       }
-
-      // Procesar imágenes de la misma manera
-      let imagenesArray = [];
-      
-      if (editingProduct.imagenes && Array.isArray(editingProduct.imagenes)) {
-        imagenesArray = editingProduct.imagenes.filter(img => img && img.trim());
-      } else if (editingProduct.imagen && editingProduct.imagen.trim()) {
-        imagenesArray = [editingProduct.imagen.trim()];
-      }
-
-      // Si no hay imágenes en el array pero sí imagen principal, agregarla
-      if (imagenesArray.length === 0 && editingProduct.imagen && editingProduct.imagen.trim()) {
-        imagenesArray = [editingProduct.imagen.trim()];
-      }
-
-      // Asegurar que la primera imagen del array sea la imagen principal
-      const imagenPrincipal = imagenesArray[0] || editingProduct.imagen || '';
-       
-      const newProduct = {
-        id: finalId,
-        titulo: editingProduct.titulo.trim(),
-        precio: editingProduct.precio.toString(),
-        descripcion: editingProduct.descripcion.trim(),
-        imagen: imagenPrincipal, // Imagen principal
-        imagenes: imagenesArray, // Array de todas las imágenes
-        material: editingProduct.material?.trim() || "",
-        peso: editingProduct.peso?.trim() || "", 
-        tamano: editingProduct.tamano?.trim() || "",
-      };
-
-      console.log('Nuevo producto a crear:', newProduct);
-
-      if (editingProduct.tipo === 'terminados') {
-        await addProduct(editingProduct.categoria, newProduct);
-      } else {
-        await addProductoDisponible(editingProduct.categoria, newProduct);
-      }
-
-      await markLastUpdated();
-      setEditingProduct(null);
-      showNotification(`Producto agregado correctamente con ID: ${finalId}`);
-    } catch (error) {
-      console.error('Error al agregar producto:', error);
-      showNotification('Error al agregar el producto', 'error');
+    } else {
+      showNotification('Por favor completa al menos el tÃ­tulo y el precio', 'error');
     }
-  } else {
-    showNotification('Por favor completa al menos el título y el precio', 'error');
-  }
-};
+  };
 
   const handleExportData = () => {
     const data = exportProducts();
@@ -316,7 +353,7 @@ const AdministrationPanel = () => {
           await markLastUpdated();
           showNotification('Datos importados correctamente');
         } else {
-          showNotification('Error: Formato de datos inválido', 'error');
+          showNotification('Error: Formato de datos invÃ¡lido', 'error');
         }
       } catch (error) {
         showNotification('Error al importar los datos', 'error');
@@ -327,7 +364,7 @@ const AdministrationPanel = () => {
   };
 
   const handleResetData = async () => {
-    if (confirm('¿Estás seguro de que quieres restaurar todos los productos a los valores iniciales? Esta acción no se puede deshacer.')) {
+    if (confirm('Â¿EstÃ¡s seguro de que quieres restaurar todos los productos a los valores iniciales? Esta acciÃ³n no se puede deshacer.')) {
       try {
         await resetProducts();
         await markLastUpdated();
@@ -339,7 +376,7 @@ const AdministrationPanel = () => {
   };
 
   const handleClearLocalStorage = async () => {
-    if (confirm('¿Estás seguro de que quieres limpiar completamente el almacenamiento? Esto restaurará los datos iniciales.')) {
+    if (confirm('Â¿EstÃ¡s seguro de que quieres limpiar completamente el almacenamiento? Esto restaurarÃ¡ los datos iniciales.')) {
       try {
         await clearLocalStorage();
         showNotification('Datos limpiados correctamente', 'warning');
@@ -349,7 +386,7 @@ const AdministrationPanel = () => {
     }
   };
 
-  // Obtener productos según el tipo seleccionado
+  // Obtener productos segÃºn el tipo seleccionado
   const currentProducts = productType === 'terminados' ? productos : productosDisponibles;
 
   const filteredProducts = currentProducts[activeCategory]?.filter(producto =>
@@ -361,10 +398,13 @@ const AdministrationPanel = () => {
     { key: 'anillos', name: 'Anillos' },
     { key: 'collares', name: 'Collares' },
     { key: 'aretes', name: 'Aretes' },
-    { key: 'pulseras', name: 'Pulseras' }
+    { key: 'pulseras', name: 'Pulseras' },
+    { key: 'topos', name: 'Topos' },
+    { key: 'dijes', name: 'Dijes' },
+    { key: 'juegos', name: 'Juegos' }
   ];
 
-  // Componente de notificación
+  // Componente de notificaciÃ³n
   const Notification = ({ notification }) => {
     if (!notification) return null;
 
@@ -381,7 +421,7 @@ const AdministrationPanel = () => {
     );
   };
 
-  // Componente de estadísticas
+  // Componente de estadÃ­sticas
   const StatsModal = () => {
     const stats = getStats();
 
@@ -390,7 +430,7 @@ const AdministrationPanel = () => {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Estadísticas del Sistema</h2>
+              <h2 className="text-2xl font-bold text-gray-800">EstadÃ­sticas del Sistema</h2>
               <button
                 onClick={() => setShowStatsModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -425,7 +465,7 @@ const AdministrationPanel = () => {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por Categoría</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por CategorÃ­a</h3>
                 <div className="space-y-3">
                   {stats.categoriesCount.map(({ category, count }) => {
                     const categoryName = categories.find(cat => cat.key === category)?.name || category;
@@ -450,7 +490,7 @@ const AdministrationPanel = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por Categoría</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por CategorÃ­a</h3>
                 <div className="space-y-3">
                   {categories.map((category) => {
                     const count = productosDisponibles[category.key]?.length || 0;
@@ -481,7 +521,7 @@ const AdministrationPanel = () => {
                 <span className="font-medium">Usuario:</span> {user?.email}
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                <span className="font-medium">Última actualización:</span>{' '}
+                <span className="font-medium">Ãšltima actualizaciÃ³n:</span>{' '}
                 {stats.lastUpdated !== 'Nunca' ? new Date(stats.lastUpdated).toLocaleString('es-ES') : 'Nunca'}
               </p>
             </div>
@@ -491,13 +531,13 @@ const AdministrationPanel = () => {
     );
   };
 
-  // Pantalla de carga para autenticación
+  // Pantalla de carga para autenticaciÃ³n
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <div className="text-white text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>{authLoading ? 'Verificando autenticación...' : 'Cargando panel de administración...'}</p>
+          <p>{authLoading ? 'Verificando autenticaciÃ³n...' : 'Cargando panel de administraciÃ³n...'}</p>
         </div>
       </div>
     );
@@ -513,7 +553,7 @@ const AdministrationPanel = () => {
               <span className="text-2xl font-bold text-white">LF</span>
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Panel de Admin</h1>
-            <p className="text-gray-600">La Flecha Joyería</p>
+            <p className="text-gray-600">La Flecha JoyerÃ­a</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -535,14 +575,14 @@ const AdministrationPanel = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Lock className="w-4 h-4 inline mr-2" />
-                Contraseña
+                ContraseÃ±a
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 required
               />
             </div>
@@ -557,12 +597,12 @@ const AdministrationPanel = () => {
               type="submit"
               className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
-              Iniciar Sesión
+              Iniciar SesiÃ³n
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-500">
-            Sistema de autenticación segura con Firebase
+            Sistema de autenticaciÃ³n segura con Firebase
           </div>
         </div>
 
@@ -571,7 +611,7 @@ const AdministrationPanel = () => {
     );
   }
 
-  // Panel de administración
+  // Panel de administraciÃ³n
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header del Admin */}
@@ -583,8 +623,8 @@ const AdministrationPanel = () => {
                 <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Panel de Administración</h1>
-                <p className="text-gray-600">La Flecha Joyería - {user?.email}</p>
+                <h1 className="text-2xl font-bold text-gray-800">Panel de AdministraciÃ³n</h1>
+                <p className="text-gray-600">La Flecha JoyerÃ­a - {user?.email}</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -593,7 +633,7 @@ const AdministrationPanel = () => {
                 className="bg-purple-500 hover:bg-purple-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>Estadísticas</span>
+                <span>EstadÃ­sticas</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
@@ -607,7 +647,7 @@ const AdministrationPanel = () => {
                 className="bg-red-500 hover:bg-red-600 text-red-500 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Cerrar Sesión</span>
+                <span>Cerrar SesiÃ³n</span>
               </button>
             </div>
           </div>
@@ -624,8 +664,8 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('terminados')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
-                      ? 'text-gray-400 text-gray-400 shadow-md'
-                      : 'text-gray-400 hover:text-gray-800'
+                    ? 'text-gray-400 text-gray-400 shadow-md'
+                    : 'text-gray-400 hover:text-gray-800'
                     }`}
                 >
                   Productos Terminados
@@ -633,8 +673,8 @@ const AdministrationPanel = () => {
                 <button
                   onClick={() => setProductType('disponibles')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
-                      ? 'text-gray-400 text-gray-400 shadow-md'
-                      : 'text-gray-400 hover:text-gray-800'
+                    ? 'text-gray-400 text-gray-400 shadow-md'
+                    : 'text-gray-400 hover:text-gray-800'
                     }`}
                 >
                   Productos Disponibles
@@ -643,15 +683,15 @@ const AdministrationPanel = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              {/* Categorías */}
+              {/* CategorÃ­as */}
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
                   <button
                     key={category.key}
                     onClick={() => setActiveCategory(category.key)}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${activeCategory === category.key
-                        ? (productType === 'terminados' ? 'bg-blue-500' : 'bg-purple-500') + ' text-gray-400'
-                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                      ? (productType === 'terminados' ? 'bg-blue-500' : 'bg-purple-500') + ' text-gray-400'
+                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
                   >
                     {category.name} ({currentProducts[category.key]?.length || 0})
@@ -666,8 +706,8 @@ const AdministrationPanel = () => {
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`px-3 py-1 rounded-md transition-colors duration-200 ${viewMode === 'grid'
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
+                      ? 'bg-white text-gray-800 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
                       }`}
                   >
                     Grid
@@ -675,8 +715,8 @@ const AdministrationPanel = () => {
                   <button
                     onClick={() => setViewMode('list')}
                     className={`px-3 py-1 rounded-md transition-colors duration-200 ${viewMode === 'list'
-                        ? 'bg-white text-gray-800 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
+                      ? 'bg-white text-gray-800 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
                       }`}
                   >
                     Lista
@@ -695,7 +735,7 @@ const AdministrationPanel = () => {
                   />
                 </div>
 
-                {/* Botón agregar */}
+                {/* BotÃ³n agregar */}
                 <button
                   onClick={handleAddNew}
                   className="bg-green-500 hover:bg-green-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
@@ -767,15 +807,15 @@ const AdministrationPanel = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TÃ­tulo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DescripciÃ³n</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredProducts.map((producto) => (
-                    <tr key={// Continuación del código que faltaba - AGREGAR después de la línea: {filteredProducts.map((producto) => (
+                    <tr key={// ContinuaciÃ³n del cÃ³digo que faltaba - AGREGAR despuÃ©s de la lÃ­nea: {filteredProducts.map((producto) => (
                       //                     <tr key={
 
                       producto.id} className="hover:bg-gray-50">
@@ -805,8 +845,8 @@ const AdministrationPanel = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-amber-600">
-  ${formatPrice(producto.precio)}
-</div>
+                          ${formatPrice(producto.precio)}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-500 max-w-xs line-clamp-2">
@@ -849,7 +889,7 @@ const AdministrationPanel = () => {
             <p className="text-gray-500 mb-4">
               {searchTerm ?
                 `No se encontraron productos que coincidan con "${searchTerm}"` :
-                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categoría ${categories.find(cat => cat.key === activeCategory)?.name}`
+                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categorÃ­a ${categories.find(cat => cat.key === activeCategory)?.name}`
               }
             </p>
             <button
@@ -863,7 +903,7 @@ const AdministrationPanel = () => {
         )}
       </div>
 
-      {/* Modal de edición/agregar producto */}
+      {/* Modal de ediciÃ³n/agregar producto */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -891,8 +931,8 @@ const AdministrationPanel = () => {
                         type="button"
                         onClick={() => setEditingProduct({ ...editingProduct, tipo: 'terminados' })}
                         className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'terminados'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-gray-600 hover:text-gray-800'
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'text-gray-600 hover:text-gray-800'
                           }`}
                       >
                         Terminado
@@ -901,8 +941,8 @@ const AdministrationPanel = () => {
                         type="button"
                         onClick={() => setEditingProduct({ ...editingProduct, tipo: 'disponibles' })}
                         className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'disponibles'
-                            ? 'bg-purple-500 text-white shadow-sm'
-                            : 'text-gray-600 hover:text-gray-800'
+                          ? 'bg-purple-500 text-white shadow-sm'
+                          : 'text-gray-600 hover:text-gray-800'
                           }`}
                       >
                         Disponible
@@ -912,33 +952,46 @@ const AdministrationPanel = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-  ID del Producto
-</label>
-<input
-  type="number"
-  value={editingProduct.id}
-  readOnly={!!editingProduct.titulo}
-  onChange={(e) => {
-    if (!editingProduct.titulo) {
-      setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) || 1 });
-    }
-  }}
-  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 ${
-    !!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
-  }`}
-  min="1"
-/>
-{!!editingProduct.titulo && (
-  <p className="text-xs text-gray-500 mt-1">
-    El ID no se puede modificar en productos existentes
-  </p>
-)}
+                      ID del Producto
+                    </label>
+                    <input
+                      type="number"
+                      value={editingProduct.id}
+                      readOnly={!!editingProduct.titulo}
+                      onChange={(e) => {
+                        if (!editingProduct.titulo) {
+                          setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) || 1 });
+                        }
+                      }}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 ${!!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
+                      min="1"
+                    />
+                    {!!editingProduct.titulo && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        El ID no se puede modificar en productos existentes
+                      </p>
+                    )}
                   </div>
                 </div>
-
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Subtipo
+  </label>
+  <select
+    value={editingProduct.subtipo || ''}
+    onChange={(e) => setEditingProduct({ ...editingProduct, subtipo: e.target.value })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+  >
+    <option value="">Seleccionar subtipo</option>
+    {CATEGORY_SUBTYPES[editingProduct.categoria]?.map(subtipo => (
+      <option key={subtipo} value={subtipo}>{subtipo}</option>
+    ))}
+  </select>
+</div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Título *
+                    TÃ­tulo *
                   </label>
                   <input
                     type="text"
@@ -966,10 +1019,22 @@ const AdministrationPanel = () => {
 
                 <div>
   <label className="block text-sm font-medium text-gray-700 mb-2">
-    Imágenes del Producto
+    ImÃ¡genes del Producto
   </label>
   
-  {/* Campo para agregar nueva imagen */}
+  {/* Upload desde archivo */}
+  <div className="mb-4">
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleFileUpload}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+    />
+    <p className="text-xs text-gray-500 mt-1">Selecciona archivos de imagen desde tu computadora</p>
+  </div>
+
+  {/* Campo para agregar nueva imagen por URL */}
   <div className="flex space-x-2 mb-3">
     <input
       type="url"
@@ -981,27 +1046,27 @@ const AdministrationPanel = () => {
     <button
       type="button"
       onClick={() => {
-  if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
-    const currentImages = editingProduct.imagenes || [];
-    // Filtrar imágenes vacías y agregar la nueva
-    const validImages = currentImages.filter(img => img && img.trim());
-    const newImages = [...validImages, editingProduct.newImageUrl.trim()];
-    
-    setEditingProduct({ 
-      ...editingProduct, 
-      imagenes: newImages,
-      imagen: newImages[0], // Primera imagen como principal
-      newImageUrl: '' 
-    });
-  }
-}}
+        if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
+          const currentImages = editingProduct.imagenes || [];
+          // Filtrar imÃ¡genes vacÃ­as y agregar la nueva
+          const validImages = currentImages.filter(img => img && img.trim());
+          const newImages = [...validImages, editingProduct.newImageUrl.trim()];
+
+          setEditingProduct({
+            ...editingProduct,
+            imagenes: newImages,
+            imagen: newImages[0], // Primera imagen como principal
+            newImageUrl: ''
+          });
+        }
+      }}
       className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
     >
       <Plus className="w-4 h-4" />
     </button>
   </div>
 
-  {/* Lista de imágenes actuales */}
+  {/* Lista de imÃ¡genes actuales */}
   <div className="space-y-2">
     {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
       <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -1026,8 +1091,8 @@ const AdministrationPanel = () => {
               onClick={() => {
                 const newImages = [...(editingProduct.imagenes || [])];
                 [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
-                setEditingProduct({ 
-                  ...editingProduct, 
+                setEditingProduct({
+                  ...editingProduct,
                   imagenes: newImages,
                   imagen: newImages[0]
                 });
@@ -1043,13 +1108,13 @@ const AdministrationPanel = () => {
               type="button"
               onClick={() => {
                 const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
-                setEditingProduct({ 
-                  ...editingProduct, 
+                setEditingProduct({
+                  ...editingProduct,
                   imagenes: newImages,
                   imagen: newImages[0] || ''
                 });
               }}
-              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+              className="bg-red-500 hover:bg-red-600 text-amber-600 px-2 py-1 rounded text-xs"
               title="Eliminar imagen"
             >
               <Trash2 className="w-3 h-3" />
@@ -1063,52 +1128,52 @@ const AdministrationPanel = () => {
   {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
     <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-      <p className="text-gray-500 text-sm">No hay imágenes agregadas</p>
+      <p className="text-gray-500 text-sm">No hay imÃ¡genes agregadas</p>
     </div>
   )}
 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción
+                    DescripciÃ³n
                   </label>
                   <textarea
                     value={editingProduct.descripcion}
                     onChange={(e) => setEditingProduct({ ...editingProduct, descripcion: e.target.value })}
                     rows="4"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                    placeholder="Descripción del producto..."
+                    placeholder="DescripciÃ³n del producto..."
                   />
                 </div>
                 <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
-  <input
-    type="text"
-    value={editingProduct.material || ""}
-    onChange={(e) => setEditingProduct({ ...editingProduct, material: e.target.value })}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-  />
-</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
+                  <input
+                    type="text"
+                    value={editingProduct.material || ""}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, material: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Peso</label>
-  <input
-    type="text"
-    value={editingProduct.peso || ""}
-    onChange={(e) => setEditingProduct({ ...editingProduct, peso: e.target.value })}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-  />
-</div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Peso</label>
+                  <input
+                    type="text"
+                    value={editingProduct.peso || ""}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, peso: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Tamaño</label>
-  <input
-    type="text"
-    value={editingProduct.tamano || ""}
-    onChange={(e) => setEditingProduct({ ...editingProduct, tamano: e.target.value })}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-  />
-</div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">TamaÃ±o</label>
+                  <input
+                    type="text"
+                    value={editingProduct.tamano || ""}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, tamano: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
 
               </div>
 
@@ -1139,7 +1204,7 @@ const AdministrationPanel = () => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Gestión de Datos</h2>
+                <h2 className="text-2xl font-bold text-gray-800">GestiÃ³n de Datos</h2>
                 <button
                   onClick={() => setShowBackupModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -1169,7 +1234,7 @@ const AdministrationPanel = () => {
                   <textarea
                     value={importData}
                     onChange={(e) => setImportData(e.target.value)}
-                    placeholder="Pega aquí el contenido JSON del backup..."
+                    placeholder="Pega aquÃ­ el contenido JSON del backup..."
                     rows="6"
                     className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 mb-4"
                   />
@@ -1213,10 +1278,10 @@ const AdministrationPanel = () => {
         </div>
       )}
 
-      {/* Modal de estadísticas */}
+      {/* Modal de estadÃ­sticas */}
       {showStatsModal && <StatsModal />}
 
-      {/* Notificación */}
+      {/* NotificaciÃ³n */}
       <Notification notification={notification} />
     </div>
   );
