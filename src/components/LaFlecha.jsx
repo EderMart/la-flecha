@@ -322,7 +322,7 @@ const LaFlecha = () => {
                       {/* Botones de navegaciÃ³n */}
                       <button
                         onClick={prevImage}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2  text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
                         aria-label="Imagen anterior"
                       >
                         <ChevronLeft className="w-6 h-6" />
@@ -330,7 +330,7 @@ const LaFlecha = () => {
 
                       <button
                         onClick={nextImage}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2  hover:bg-black/70 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
                         aria-label="Imagen siguiente"
                       >
                         <ChevronRight className="w-6 h-6" />
@@ -929,7 +929,7 @@ const LaFlecha = () => {
                   <p className="text-gray-600 text-sm line-clamp-2 mb-3">{item.descripcion}</p>
                   <button
                     onClick={() => openModal(item)}
-                    className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                    className="bg-amber-600 hover:bg-amber-700 text-amber-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                   >
                     Ver Detalles
                   </button>
@@ -1248,7 +1248,7 @@ const LaFlecha = () => {
                 <p className="text-gray-600 text-sm line-clamp-2 mb-3">{item.descripcion}</p>
                 <button
                   onClick={() => openModal(item)}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-amber-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
                 >
                   Ver Detalles
                 </button>
@@ -1329,7 +1329,7 @@ const LaFlecha = () => {
                 <p className="text-gray-600 text-sm line-clamp-2 mb-3">{item.descripcion}</p>
                 <button
                   onClick={() => openModal(item)}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-amber-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105"
                 >
                   Ver Detalles
                 </button>
@@ -1348,65 +1348,96 @@ const LaFlecha = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section Mejorado */}
-      <section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-        {/* Efecto de partÃ­culas de fondo */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-          <div className="absolute top-32 right-20 w-1 h-1 bg-amber-300 rounded-full animate-pulse delay-75"></div>
-          <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse delay-150"></div>
-          <div className="absolute bottom-20 right-1/3 w-1 h-1 bg-amber-400 rounded-full animate-pulse delay-300"></div>
-        </div>
+      /* Hero Section Mejorado con Video de Fondo */
+<section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+  {/* Video de fondo */}
+  <div className="absolute inset-0 w-full h-full">
+    <video
+      className="w-full h-full object-cover"
+      autoPlay
+      muted
+      loop
+      playsInline
+    >
+      <source src="/path-to-your-video.mp4" type="video/mp4" />
+      <source src="/path-to-your-video.webm" type="video/webm" />
+      {/* Fallback para navegadores que no soporten video */}
+      Tu navegador no soporta video HTML5.
+    </video>
+    
+    {/* Overlay oscuro para mejorar legibilidad del texto */}
+    <div className="absolute inset-0 bg-black/50"></div>
+  </div>
 
-        <div className="relative max-w-5xl mx-auto px-4">
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tightl">
-            Elegancia que
-            <span className="block bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent animate-pulsel"> Perdura</span>
-          </h2>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-            Descubre nuestra colección de joyas únicas, donde cada pieza cuenta una historia de amor,
-            elegancia y sofisticación, hecha con los mejores materiales del mundo.
-          </p>
+  {/* Efecto de partículas de fondo (mantiene las partículas originales) */}
+  <div className="absolute inset-0 opacity-10 z-10">
+    <div className="absolute top-20 left-10 w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+    <div className="absolute top-32 right-20 w-1 h-1 bg-amber-300 rounded-full animate-pulse delay-75"></div>
+    <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse delay-150"></div>
+    <div className="absolute bottom-20 right-1/3 w-1 h-1 bg-amber-400 rounded-full animate-pulse delay-300"></div>
+  </div>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20mÃ¡s%20informaciÃ³n"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group"
+  <div className="relative max-w-5xl mx-auto px-4 z-20">
+    <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+      Elegancia que
+      <span className="block bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent animate-pulse"> Perdura</span>
+    </h2>
+    <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+      Descubre nuestra colección de joyas únicas, donde cada pieza cuenta una historia de amor,
+      elegancia y sofisticación, hecha con los mejores materiales del mundo.
+    </p>
+
+    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+      <a
+        href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20más%20información"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group"
+      >
+        <button className="group relative bg-white hover:bg-green-600 text-amber-600 hover:text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-500/25 flex items-center gap-3 min-w-[280px] justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+          <div className="relative z-10 flex items-center gap-3">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="drop-shadow-sm"
             >
-              <button className="group relative bg-white hover:bg-green-600 text-amber-600 hover:text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-500/25 flex items-center gap-3 min-w-[280px] justify-center">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
-
-                <div className="relative z-10 flex items-center gap-3">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="drop-shadow-sm"
-                  >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
-                  </svg>
-                  <span className="group-hover:translate-x-1 transition-transform duration-300">
-                    Chatear por WhatsApp
-                  </span>
-                </div>
-
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping opacity-75"></div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full"></div>
-              </button>
-            </a>
-
-            <a
-              href="#productos"
-              className="group text-white border-2 border-white hover:bg-white hover:text-gray-800 px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
-            >
-              Ver Catálogo
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </a>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
+            </svg>
+            <span className="group-hover:translate-x-1 transition-transform duration-300">
+              Chatear por WhatsApp
+            </span>
           </div>
-        </div>
-      </section>
+
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping opacity-75"></div>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full"></div>
+        </button>
+      </a>
+
+      <a
+        href="#productos"
+        className="group"
+      >
+        <button className="group relative bg-white hover:bg-amber-700 text-amber-600 hover:text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-amber-500/25 flex items-center gap-3 min-w-[280px] justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-600 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+          <div className="relative z-10 flex items-center gap-3">
+            <ArrowRight className="w-6 h-6 drop-shadow-sm" />
+            <span className="group-hover:translate-x-1 transition-transform duration-300">
+              Ver Catálogo
+            </span>
+          </div>
+
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-ping opacity-75"></div>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full"></div>
+        </button>
+      </a>
+    </div>
+  </div>
+</section>
 
       {/* SecciÃ³n de caracterÃ­sticas mejorada */}
       <section className="py-20 bg-white">
@@ -1477,24 +1508,26 @@ const LaFlecha = () => {
 
           <div className="flex flex-col lg:flex-row justify-between items-center mb-12 gap-6">
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <button
-                onClick={() => setActiveTab('terminados')}
-                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${activeTab === 'terminados'
-                  ? 'bg-white text-amber-600 shadow-xl'
-                  : 'bg-gray-200 text-gray-600 hover:bg-amber-50 shadow-md'
-                  }`}
-              >
-                Trabajos Personalizados
-              </button>
+              
 
               <button
                 onClick={() => setActiveTab('disponibles')}
                 className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${activeTab === 'disponibles'
                   ? 'bg-white text-amber-600 shadow-xl'
-                  : 'bg-gray-200 text-gray-600 hover:bg-amber-50 shadow-md'
+                  : 'bg-gray-200 text-gray-400 hover:bg-amber-50 shadow-md'
                   }`}
               >
                 Disponibles Ahora
+              </button>
+
+              <button
+                onClick={() => setActiveTab('terminados')}
+                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${activeTab === 'terminados'
+                  ? 'bg-white text-amber-600 shadow-xl'
+                  : 'bg-gray-200 text-gray-400 hover:bg-amber-50 shadow-md'
+                  }`}
+              >
+                Trabajos Personalizados
               </button>
             </div>
 
@@ -1502,8 +1535,8 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-3 rounded-lg transition-all duration-200 ${viewMode === 'grid'
-                  ? 'bg-amber-500 text-white shadow-md'
-                  : 'text-amber-600 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'bg-amber-500 text-gray-400 shadow-md'
+                  : 'text-amber-600 hover:text-gray-400 hover:bg-gray-50'
                   }`}
                 title="Vista carousel"
               >
@@ -1512,7 +1545,7 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-3 rounded-lg transition-all duration-200 ${viewMode === 'list'
-                  ? 'bg-amber-600 text-white shadow-md'
+                  ? 'bg-amber-500 text-gray-400 shadow-md'
                   : 'text-amber-600 hover:text-gray-600 hover:bg-gray-50'
                   }`}
                 title="Vista lista"
@@ -1522,7 +1555,7 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('category')}
                 className={`p-3 rounded-lg transition-all duration-200 ${viewMode === 'category'
-                  ? 'bg-blue-600 text-white shadow-md'
+                  ? 'bg-amber-500 text-gray-400 shadow-md'
                   : 'text-amber-600 hover:text-gray-600 hover:bg-gray-50'
                   }`}
                 title="Ver todos por categorÃ­a"
@@ -1532,7 +1565,7 @@ const LaFlecha = () => {
               <button
                 onClick={() => setViewMode('all')}
                 className={`p-3 rounded-lg transition-all duration-200 ${viewMode === 'all'
-                  ? 'bg-purple-600 text-white shadow-md'
+                  ? 'bg-amber-500 text-gray-400 shadow-md'
                   : 'text-amber-600 hover:text-gray-600 hover:bg-gray-50'
                   }`}
                 title="Ver todos los productos"
