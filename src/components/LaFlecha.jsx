@@ -706,14 +706,14 @@ const LaFlecha = () => {
           </div>
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-12"> 
           <a
             href="https://wa.me/573007269024?text=Hola,%20me%20gustarí­a%20conocer%20más%20sobre%20el%20proceso%20de%20personalización"
             target="_blank"
             rel="noopener noreferrer"
           >
             <button className="bg-white text-amber-600 hover:bg-gray-50 px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2 mx-auto">
-              Iniciar mi proyecto
+              Iniciar mi proyecto.
               <ArrowRight className="w-5 h-5" />
             </button>
           </a>
