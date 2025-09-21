@@ -1358,7 +1358,7 @@ const LaFlecha = () => {
       playsInline
     >
       <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.mp4" type="video/mp4" />
-      <source src="/path-to-your-video.webm" type="video/webm" />
+      <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.webm" type="video/webm" />
       {/* Fallback para navegadores que no soporten video */}
       Tu navegador no soporta video HTML5.
     </video>
