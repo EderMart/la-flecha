@@ -316,7 +316,7 @@ const LaFlecha = () => {
                     />
                   </div>
 
-                  {/* Controles de navegaciÃ³n (solo si hay mÃ¡s de una imagen) */}
+                  {/* Controles de navegaciÃ³n (solo si hay más de una imagen) */}
                   {images.length > 1 && (
                     <>
                       {/* Botones de navegaciÃ³n */}
@@ -626,7 +626,7 @@ const LaFlecha = () => {
 
           {/* Controles de visualizaciÃ³n */}
           <div className="text-center space-y-4">
-            {/* BotÃ³n para ver mÃ¡s/menos testimonios */}
+            {/* BotÃ³n para ver más/menos testimonios */}
             {hasMoreTestimonials && (
               <button
                 onClick={() => setShowAllTestimonials(!showAllTestimonials)}
@@ -708,7 +708,7 @@ const LaFlecha = () => {
 
         <div className="text-center mt-12">
           <a
-            href="https://wa.me/573007269024?text=Hola,%20me%20gustarÃ­a%20conocer%20mÃ¡s%20sobre%20el%20proceso%20de%20personalizaciÃ³n"
+            href="https://wa.me/573007269024?text=Hola,%20me%20gustarí­a%20conocer%20más%20sobre%20el%20proceso%20de%20personalización"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -1347,8 +1347,6 @@ const LaFlecha = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Hero Section Mejorado */}
-      /* Hero Section Mejorado con Video de Fondo */
 <section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
   {/* Video de fondo */}
   <div className="absolute inset-0 w-full h-full">
@@ -1359,7 +1357,7 @@ const LaFlecha = () => {
       loop
       playsInline
     >
-      <source src="/path-to-your-video.mp4" type="video/mp4" />
+      <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.mp4" type="video/mp4" />
       <source src="/path-to-your-video.webm" type="video/webm" />
       {/* Fallback para navegadores que no soporten video */}
       Tu navegador no soporta video HTML5.
@@ -1380,7 +1378,7 @@ const LaFlecha = () => {
   <div className="relative max-w-5xl mx-auto px-4 z-20">
     <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
       Elegancia que
-      <span className="block bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent animate-pulse"> Perdura</span>
+      <span className="block bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent"> Perdura</span>
     </h2>
     <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
       Descubre nuestra colección de joyas únicas, donde cada pieza cuenta una historia de amor,
@@ -1713,7 +1711,7 @@ const LaFlecha = () => {
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20gustarÃ­a%20iniciar%20un%20proyecto%20personalizado"
+              href="https://wa.me/573007269024?text=Hola,%20me%20gustarí­a%20iniciar%20un%20proyecto%20personalizado"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -1724,13 +1722,13 @@ const LaFlecha = () => {
             </a>
 
             <a
-              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20ver%20mÃ¡s%20productos%20disponibles"
+              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20ver%20más%20productos%20disponibles"
               target="_blank"
               rel="noopener noreferrer"
             >
               <button className="bg-white text-amber-600 hover:bg-gray-50 px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-3 mx-auto sm:mx-0">
                 <Star className="w-6 h-6" />
-                Ver MÃ¡s Productos
+                Ver Más Productos
               </button>
             </a>
           </div>
