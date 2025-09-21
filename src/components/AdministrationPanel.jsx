@@ -928,16 +928,6 @@ const AdministrationPanel = () => {
                     <div className="flex bg-gray-100 rounded-lg p-1">
                       <button
                         type="button"
-                        onClick={() => setEditingProduct({ ...editingProduct, tipo: 'terminados' })}
-                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'terminados'
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'text-gray-600 hover:text-gray-800'
-                          }`}
-                      >
-                        Terminado
-                      </button>
-                      <button
-                        type="button"
                         onClick={() => setEditingProduct({ ...editingProduct, tipo: 'disponibles' })}
                         className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'disponibles'
                           ? 'bg-purple-500 text-white shadow-sm'
@@ -946,6 +936,17 @@ const AdministrationPanel = () => {
                       >
                         Disponible
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingProduct({ ...editingProduct, tipo: 'terminados' })}
+                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${editingProduct.tipo === 'terminados'
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                      >
+                        Terminado
+                      </button>
+                      
                     </div>
                   </div>
 
