@@ -21,7 +21,7 @@ const CATEGORY_SUBTYPES = {
   dijes: ['Dijes tradicionales'],
   juegos: [
     'Juego de pulseras y anillo',
-    'Juego de cadena y dije', 
+    'Juego de cadena y dije',
     'Juego de cadena, pulsera y anillo'
   ]
 };
@@ -45,19 +45,19 @@ const AdministrationPanel = () => {
 
   // Estado de autenticaciÃ³n
   const { user, loading: authLoading } = useAuthState();
-  
- const handleFileUpload = (event) => {
+
+  const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
-    
+
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target.result;
         const currentImages = editingProduct.imagenes || [];
         const newImages = [...currentImages, base64];
-        
-        setEditingProduct({ 
-          ...editingProduct, 
+
+        setEditingProduct({
+          ...editingProduct,
           imagenes: newImages,
           imagen: newImages[0] || base64
         });
@@ -242,7 +242,8 @@ const AdministrationPanel = () => {
       }
     });
 
-    const newId = maxId + 1;
+        const newId = getNextId(activeCategory, productType);
+
 
     setEditingProduct({
       categoria: activeCategory,
@@ -256,7 +257,8 @@ const AdministrationPanel = () => {
       material: '',
       peso: '',
       tamano: '',
-      newImageUrl: '' // Inicializar campo para nueva URL
+      newImageUrl: '', // Inicializar campo para nueva URL
+      subtipo: ''
     });
   };
 
@@ -430,7 +432,7 @@ const AdministrationPanel = () => {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">EstadÃ­sticas del Sistema</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Estadísticas del Sistema</h2>
               <button
                 onClick={() => setShowStatsModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -465,7 +467,7 @@ const AdministrationPanel = () => {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por CategorÃ­a</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por Categorí­a</h3>
                 <div className="space-y-3">
                   {stats.categoriesCount.map(({ category, count }) => {
                     const categoryName = categories.find(cat => cat.key === category)?.name || category;
@@ -490,7 +492,7 @@ const AdministrationPanel = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por CategorÃ­a</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por Categorí­a</h3>
                 <div className="space-y-3">
                   {categories.map((category) => {
                     const count = productosDisponibles[category.key]?.length || 0;
@@ -521,7 +523,7 @@ const AdministrationPanel = () => {
                 <span className="font-medium">Usuario:</span> {user?.email}
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                <span className="font-medium">Ãšltima actualizaciÃ³n:</span>{' '}
+                <span className="font-medium">última actualización:</span>{' '}
                 {stats.lastUpdated !== 'Nunca' ? new Date(stats.lastUpdated).toLocaleString('es-ES') : 'Nunca'}
               </p>
             </div>
@@ -549,11 +551,13 @@ const AdministrationPanel = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-white">LF</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold">
+                <img src="/Logolaflecha.svg" alt="Logo La Flecha" />
+              </span>
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Panel de Admin</h1>
-            <p className="text-gray-600">La Flecha JoyerÃ­a</p>
+            <p className="text-gray-600">La Flecha Joyerí­a</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -567,7 +571,7 @@ const AdministrationPanel = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="admin@laflecha.com"
+                placeholder="miadmin@gmail.com"
                 required
               />
             </div>
@@ -575,14 +579,14 @@ const AdministrationPanel = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Lock className="w-4 h-4 inline mr-2" />
-                ContraseÃ±a
+                Contraseña
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                placeholder="Contraseña"
                 required
               />
             </div>
@@ -597,13 +601,9 @@ const AdministrationPanel = () => {
               type="submit"
               className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
-              Iniciar SesiÃ³n
+              Iniciar Sesión
             </button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Sistema de autenticaciÃ³n segura con Firebase
-          </div>
         </div>
 
         <Notification notification={notification} />
@@ -623,8 +623,8 @@ const AdministrationPanel = () => {
                 <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Panel de AdministraciÃ³n</h1>
-                <p className="text-gray-600">La Flecha JoyerÃ­a - {user?.email}</p>
+                <h1 className="text-2xl font-bold text-gray-800">Panel de Administración</h1>
+                <p className="text-gray-600">La Flecha Joyerí­a - {user?.email}</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -633,7 +633,7 @@ const AdministrationPanel = () => {
                 className="bg-purple-500 hover:bg-purple-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>EstadÃ­sticas</span>
+                <span>Estadísticas</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
@@ -647,7 +647,7 @@ const AdministrationPanel = () => {
                 className="bg-red-500 hover:bg-red-600 text-red-500 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Cerrar SesiÃ³n</span>
+                <span>Cerrar Sesión</span>
               </button>
             </div>
           </div>
@@ -661,15 +661,7 @@ const AdministrationPanel = () => {
             {/* Selector de tipo de productos */}
             <div className="flex justify-center">
               <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setProductType('terminados')}
-                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
-                    ? 'text-gray-400 text-gray-400 shadow-md'
-                    : 'text-gray-400 hover:text-gray-800'
-                    }`}
-                >
-                  Productos Terminados
-                </button>
+
                 <button
                   onClick={() => setProductType('disponibles')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
@@ -678,6 +670,15 @@ const AdministrationPanel = () => {
                     }`}
                 >
                   Productos Disponibles
+                </button>
+                <button
+                  onClick={() => setProductType('terminados')}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
+                    ? 'text-gray-400 text-gray-400 shadow-md'
+                    : 'text-gray-400 hover:text-gray-800'
+                    }`}
+                >
+                  Productos Personalizados
                 </button>
               </div>
             </div>
@@ -809,7 +810,7 @@ const AdministrationPanel = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TÃ­tulo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DescripciÃ³n</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
@@ -889,7 +890,7 @@ const AdministrationPanel = () => {
             <p className="text-gray-500 mb-4">
               {searchTerm ?
                 `No se encontraron productos que coincidan con "${searchTerm}"` :
-                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categorÃ­a ${categories.find(cat => cat.key === activeCategory)?.name}`
+                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categorí­a ${categories.find(cat => cat.key === activeCategory)?.name}`
               }
             </p>
             <button
@@ -964,7 +965,7 @@ const AdministrationPanel = () => {
                           setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) || 1 });
                         }
                       }}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 ${!!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600 ${!!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
                         }`}
                       min="1"
                     />
@@ -975,204 +976,204 @@ const AdministrationPanel = () => {
                     )}
                   </div>
                 </div>
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Subtipo
-  </label>
-  <select
-    value={editingProduct.subtipo || ''}
-    onChange={(e) => setEditingProduct({ ...editingProduct, subtipo: e.target.value })}
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-  >
-    <option value="">Seleccionar subtipo</option>
-    {CATEGORY_SUBTYPES[editingProduct.categoria]?.map(subtipo => (
-      <option key={subtipo} value={subtipo}>{subtipo}</option>
-    ))}
-  </select>
-</div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    TÃ­tulo *
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Subtipo
+                  </label>
+                  <select
+                    value={editingProduct.subtipo || ''}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, subtipo: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                  >
+                    <option value="">Seleccionar subtipo</option>
+                    {CATEGORY_SUBTYPES[editingProduct.categoria]?.map(subtipo => (
+                      <option key={subtipo} value={subtipo}>{subtipo}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Tí­tulo *
                   </label>
                   <input
                     type="text"
                     value={editingProduct.titulo}
                     onChange={(e) => setEditingProduct({ ...editingProduct, titulo: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
                     placeholder="Nombre del producto"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Precio *
                   </label>
                   <input
                     type="text"
                     value={editingProduct.precio}
                     onChange={(e) => setEditingProduct({ ...editingProduct, precio: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
                     placeholder="$0,000"
                     required
                   />
                 </div>
 
                 <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    ImÃ¡genes del Producto
-  </label>
-  
-  {/* Upload desde archivo */}
-  <div className="mb-4">
-    <input
-      type="file"
-      multiple
-      accept="image/*"
-      onChange={handleFileUpload}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-    />
-    <p className="text-xs text-gray-500 mt-1">Selecciona archivos de imagen desde tu computadora</p>
-  </div>
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Imágenes del Producto
+                  </label>
 
-  {/* Campo para agregar nueva imagen por URL */}
-  <div className="flex space-x-2 mb-3">
-    <input
-      type="url"
-      value={editingProduct.newImageUrl || ''}
-      onChange={(e) => setEditingProduct({ ...editingProduct, newImageUrl: e.target.value })}
-      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-      placeholder="https://ejemplo.com/imagen.jpg"
-    />
-    <button
-      type="button"
-      onClick={() => {
-        if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
-          const currentImages = editingProduct.imagenes || [];
-          // Filtrar imÃ¡genes vacÃ­as y agregar la nueva
-          const validImages = currentImages.filter(img => img && img.trim());
-          const newImages = [...validImages, editingProduct.newImageUrl.trim()];
+                  {/* Upload desde archivo */}
+                  <div className="mb-4">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                    />
+                    <p className="text-xs text-amber-600 mt-1">Selecciona archivos de imagen desde tu computadora</p>
+                  </div>
 
-          setEditingProduct({
-            ...editingProduct,
-            imagenes: newImages,
-            imagen: newImages[0], // Primera imagen como principal
-            newImageUrl: ''
-          });
-        }
-      }}
-      className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
-    >
-      <Plus className="w-4 h-4" />
-    </button>
-  </div>
+                  {/* Campo para agregar nueva imagen por URL */}
+                  <div className="flex space-x-2 mb-3">
+                    <input
+                      type="url"
+                      value={editingProduct.newImageUrl || ''}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, newImageUrl: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
+                          const currentImages = editingProduct.imagenes || [];
+                          // Filtrar imÃ¡genes vacÃ­as y agregar la nueva
+                          const validImages = currentImages.filter(img => img && img.trim());
+                          const newImages = [...validImages, editingProduct.newImageUrl.trim()];
 
-  {/* Lista de imÃ¡genes actuales */}
-  <div className="space-y-2">
-    {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
-      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-        <img
-          src={imageUrl}
-          alt={`Vista ${index + 1}`}
-          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-          onError={(e) => {
-            e.target.src = '';
-          }}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-600 truncate">{imageUrl}</p>
-          <p className="text-xs text-gray-400">
-            {index === 0 ? 'Imagen principal' : `Imagen ${index + 1}`}
-          </p>
-        </div>
-        <div className="flex space-x-1">
-          {index > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                const newImages = [...(editingProduct.imagenes || [])];
-                [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
-                setEditingProduct({
-                  ...editingProduct,
-                  imagenes: newImages,
-                  imagen: newImages[0]
-                });
-              }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
-              title="Hacer principal"
-            >
-              Principal
-            </button>
-          )}
-          {(editingProduct.imagenes || []).length > 1 && (
-            <button
-              type="button"
-              onClick={() => {
-                const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
-                setEditingProduct({
-                  ...editingProduct,
-                  imagenes: newImages,
-                  imagen: newImages[0] || ''
-                });
-              }}
-              className="bg-red-500 hover:bg-red-600 text-amber-600 px-2 py-1 rounded text-xs"
-              title="Eliminar imagen"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-      </div>
-    ))}
-  </div>
+                          setEditingProduct({
+                            ...editingProduct,
+                            imagenes: newImages,
+                            imagen: newImages[0], // Primera imagen como principal
+                            newImageUrl: ''
+                          });
+                        }
+                      }}
+                      className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
 
-  {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
-    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-      <p className="text-gray-500 text-sm">No hay imÃ¡genes agregadas</p>
-    </div>
-  )}
-</div>
+                  {/* Lista de imÃ¡genes actuales */}
+                  <div className="space-y-2">
+                    {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <img
+                          src={imageUrl}
+                          alt={`Vista ${index + 1}`}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                          onError={(e) => {
+                            e.target.src = '';
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-600 truncate">{imageUrl}</p>
+                          <p className="text-xs text-gray-400">
+                            {index === 0 ? 'Imagen principal' : `Imagen ${index + 1}`}
+                          </p>
+                        </div>
+                        <div className="flex space-x-1">
+                          {index > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = [...(editingProduct.imagenes || [])];
+                                [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
+                                setEditingProduct({
+                                  ...editingProduct,
+                                  imagenes: newImages,
+                                  imagen: newImages[0]
+                                });
+                              }}
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+                              title="Hacer principal"
+                            >
+                              Principal
+                            </button>
+                          )}
+                          {(editingProduct.imagenes || []).length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
+                                setEditingProduct({
+                                  ...editingProduct,
+                                  imagenes: newImages,
+                                  imagen: newImages[0] || ''
+                                });
+                              }}
+                              className="bg-red-500 hover:bg-red-600 text-amber-600 px-2 py-1 rounded text-xs"
+                              title="Eliminar imagen"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
+                    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">No hay imágenes agregadas</p>
+                    </div>
+                  )}
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    DescripciÃ³n
+                    Descripción
                   </label>
                   <textarea
                     value={editingProduct.descripcion}
                     onChange={(e) => setEditingProduct({ ...editingProduct, descripcion: e.target.value })}
                     rows="4"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
                     placeholder="DescripciÃ³n del producto..."
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
+                  <label className="block text-sm font-medium text-black mb-2">Material</label>
                   <input
                     type="text"
                     value={editingProduct.material || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, material: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Peso</label>
+                  <label className="block text-sm font-medium text-black mb-2 ">Peso</label>
                   <input
                     type="text"
                     value={editingProduct.peso || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, peso: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">TamaÃ±o</label>
+                  <label className="block text-sm font-medium text-black mb-2">Tamaño</label>
                   <input
                     type="text"
                     value={editingProduct.tamano || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, tamano: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
                   />
                 </div>
 
@@ -1205,7 +1206,7 @@ const AdministrationPanel = () => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">GestiÃ³n de Datos</h2>
+                <h2 className="text-2xl font-bold text-gray-800">Gestión de Datos</h2>
                 <button
                   onClick={() => setShowBackupModal(false)}
                   className="text-gray-400 hover:text-gray-600"
