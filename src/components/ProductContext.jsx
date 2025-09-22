@@ -1,4 +1,4 @@
-// ProductContext.js - REEMPLAZA COMPLETAMENTE tu archivo actual
+// ProductContext.js - CORRECCIONES APLICADAS
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   collection,
@@ -12,9 +12,9 @@ import {
   orderBy,
   query,
   limit,
-  Timestamp  // ← Agregar esta importación
+  Timestamp
 } from "firebase/firestore";
-import { db } from "../../firebase"; // ⚠️ revisa que la ruta sea correcta
+import { db } from "../../firebase";
 
 const ProductContext = createContext();
 
@@ -24,7 +24,7 @@ const INITIAL_PRODUCTS = {
   collares: [],
   aretes: [],
   pulseras: [],
-   topos: [],        
+  topos: [],        
   dijes: [],        
   juegos: [] 
 };
@@ -57,7 +57,7 @@ export const ProductProvider = ({ children }) => {
     const loadProducts = async () => {
       try {
         setIsLoading(true);
-        const categories = ["anillos", "collares", "aretes", "pulseras"];
+        const categories = ["anillos", "collares", "aretes", "pulseras", "topos", "dijes", "juegos"]; // 🔧 AGREGADO: topos, dijes, juegos
         const productData = {};
         const availableData = {};
 
@@ -75,7 +75,8 @@ export const ProductProvider = ({ children }) => {
                 id: parseInt(d.id, 10),
                 precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
                 // Asegurar compatibilidad con versiones antiguas
-                imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
+                imagenes: data.imagenes || (data.imagen ? [data.imagen] : []),
+                subtipo: data.subtipo || "" // 🔧 AGREGADO: Asegurar que subtipo existe
               };
             });
           }
@@ -94,7 +95,8 @@ export const ProductProvider = ({ children }) => {
                 ? data.precio
                 : parsePrecioInput(data.precio),
               // Asegurar compatibilidad con versiones antiguas
-              imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
+              imagenes: data.imagenes || (data.imagen ? [data.imagen] : []),
+              subtipo: data.subtipo || "" // 🔧 AGREGADO: Asegurar que subtipo existe
             };
           });
         }
@@ -141,7 +143,6 @@ export const ProductProvider = ({ children }) => {
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        // Inicializar con testimonios de ejemplo si no hay ninguno
         await initializeTestimonials();
         setTestimonios(INITIAL_TESTIMONIALS);
       } else {
@@ -159,76 +160,79 @@ export const ProductProvider = ({ children }) => {
 
   // 📡 Escuchar cambios en tiempo real
   useEffect(() => {
-  const categories = ["anillos", "collares", "aretes", "pulseras"];
-  const unsubscribes = [];
+    const categories = ["anillos", "collares", "aretes", "pulseras", "topos", "dijes", "juegos"]; // 🔧 AGREGADO: topos, dijes, juegos
+    const unsubscribes = [];
 
-  categories.forEach((category) => {
-    // --- Listener productos
-    const unsubProductos = onSnapshot(
-      collection(db, category),
-      (snapshot) => {
-        const categoryProducts = snapshot.docs.map((d) => {
-          const data = d.data() || {};
-          return {
-            ...data,
-            id: parseInt(d.id, 10),
-            precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
-            // Asegurar compatibilidad con versiones antiguas
-            imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
-          };
-        });
-        setProductos((prev) => ({ ...prev, [category]: categoryProducts }));
-      },
-      (error) => console.error(`Error escuchando ${category}:`, error)
-    );
+    categories.forEach((category) => {
+      // --- Listener productos
+      const unsubProductos = onSnapshot(
+        collection(db, category),
+        (snapshot) => {
+          const categoryProducts = snapshot.docs.map((d) => {
+            const data = d.data() || {};
+            return {
+              ...data,
+              id: parseInt(d.id, 10),
+              precio: typeof data.precio === 'number' ? data.precio : parsePrecioInput(data.precio),
+              // Asegurar compatibilidad con versiones antiguas
+              imagenes: data.imagenes || (data.imagen ? [data.imagen] : []),
+              subtipo: data.subtipo || "" // 🔧 AGREGADO: Asegurar que subtipo existe
+            };
+          });
+          setProductos((prev) => ({ ...prev, [category]: categoryProducts }));
+        },
+        (error) => console.error(`Error escuchando ${category}:`, error)
+      );
 
-    // --- Listener disponibles
-    const unsubDisponibles = onSnapshot(
-      collection(db, `disponibles_${category}`),
-      (snapshot) => {
-        const categoryProducts = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: parseInt(doc.id),
-            ...data,
-            // Asegurar compatibilidad con versiones antiguas
-            imagenes: data.imagenes || (data.imagen ? [data.imagen] : [])
-          };
-        });
-        setProductosDisponibles((prev) => ({ ...prev, [category]: categoryProducts }));
-      },
-      (error) => console.error(`Error escuchando disponibles_${category}:`, error)
-    );
+      // --- Listener disponibles
+      const unsubDisponibles = onSnapshot(
+        collection(db, `disponibles_${category}`),
+        (snapshot) => {
+          const categoryProducts = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: parseInt(doc.id),
+              ...data,
+              // Asegurar compatibilidad con versiones antiguas
+              imagenes: data.imagenes || (data.imagen ? [data.imagen] : []),
+              subtipo: data.subtipo || "" // 🔧 AGREGADO: Asegurar que subtipo existe
+            };
+          });
+          setProductosDisponibles((prev) => ({ ...prev, [category]: categoryProducts }));
+        },
+        (error) => console.error(`Error escuchando disponibles_${category}:`, error)
+      );
 
-    unsubscribes.push(unsubProductos, unsubDisponibles);
-  });
+      unsubscribes.push(unsubProductos, unsubDisponibles);
+    });
 
     // --- Listener testimonios
     const testimonialsRef = collection(db, "testimonios");
-  const q = query(testimonialsRef, orderBy("fecha", "desc"), limit(20));
-  
-  const unsubTestimonials = onSnapshot(
-    q,
-    (snapshot) => {
-     const testimoniosData = snapshot.docs.map(doc => {
-  const data = doc.data();
-  return {
-    id: doc.id,
-    ...data,
-    fecha: data.fecha?.toDate ? data.fecha.toDate() : data.fecha
-  };
-});
-      setTestimonios(testimoniosData);
-    },
-    (error) => console.error("Error escuchando testimonios:", error)
-  );
+    const q = query(testimonialsRef, orderBy("fecha", "desc"), limit(20));
+    
+    const unsubTestimonials = onSnapshot(
+      q,
+      (snapshot) => {
+        const testimoniosData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            fecha: data.fecha?.toDate ? data.fecha.toDate() : data.fecha
+          };
+        });
+        setTestimonios(testimoniosData);
+      },
+      (error) => console.error("Error escuchando testimonios:", error)
+    );
 
-  unsubscribes.push(unsubTestimonials);
+    unsubscribes.push(unsubTestimonials);
 
-  return () => {
-    unsubscribes.forEach((unsub) => unsub());
-  };
-}, []);
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+    };
+  }, []);
+
   // 🔧 Funciones auxiliares
   const initializeFirebaseData = async (category, products) => {
     try {
@@ -241,6 +245,7 @@ export const ProductProvider = ({ children }) => {
           material: product.material || "",
           peso: product.peso || "",
           tamano: product.tamano || "",
+          subtipo: product.subtipo || "",
         });
       }
     } catch (error) {
@@ -268,13 +273,37 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
-  const getNextId = () => {
+  // 🔧 CORRECCIÓN 1: Función getNextId corregida para generar IDs secuenciales correctos
+  const getNextId = (categoria = null, tipo = 'terminados') => {
     let maxId = 0;
-    Object.values(productos).forEach((categoryProducts) => {
+    
+    if (categoria) {
+      // Buscar solo en la categoría específica
+      const currentProducts = tipo === 'terminados' ? productos : productosDisponibles;
+      const categoryProducts = currentProducts[categoria] || [];
+      
       categoryProducts.forEach((product) => {
-        if (product.id > maxId) maxId = product.id;
+        const productId = parseInt(product.id, 10);
+        if (!isNaN(productId) && productId > maxId) {
+          maxId = productId;
+        }
       });
-    });
+    } else {
+      // Buscar en todas las categorías (comportamiento original)
+      const currentProducts = tipo === 'terminados' ? productos : productosDisponibles;
+      
+      Object.values(currentProducts).forEach((categoryProducts) => {
+        if (Array.isArray(categoryProducts)) {
+          categoryProducts.forEach((product) => {
+            const productId = parseInt(product.id, 10);
+            if (!isNaN(productId) && productId > maxId) {
+              maxId = productId;
+            }
+          });
+        }
+      });
+    }
+    
     return maxId + 1;
   };
 
@@ -313,7 +342,8 @@ export const ProductProvider = ({ children }) => {
       titulo: newProduct.titulo,
       precio: precioNumber,
       imagenes: imagenesArray,
-      imagen: imagenPrincipal
+      imagen: imagenPrincipal,
+      subtipo: newProduct.subtipo // 🔧 AGREGADO: Log del subtipo
     });
 
     await setDoc(doc(db, categoria, id), {
@@ -322,11 +352,11 @@ export const ProductProvider = ({ children }) => {
       precio: precioNumber,
       descripcion: newProduct.descripcion,
       imagen: imagenPrincipal,
-      imagenes: imagenesArray, // Agregar el array de imágenes
+      imagenes: imagenesArray,
       material: newProduct.material || "",
       peso: newProduct.peso || "",
       tamano: newProduct.tamano || "",
-       subtipo: newProduct.subtipo || "",
+      subtipo: newProduct.subtipo || "", // 🔧 CORRECCIÓN 2: Asegurar que subtipo se guarda
     }, { merge: true });
     await markLastUpdated();
   };
@@ -351,11 +381,11 @@ export const ProductProvider = ({ children }) => {
       precio: precioNumber,
       descripcion: updatedProduct.descripcion,
       imagen: imagenPrincipal,
-      imagenes: imagenesArray, // Agregar el array de imágenes
+      imagenes: imagenesArray,
       material: updatedProduct.material || "",
       peso: updatedProduct.peso || "",
       tamano: updatedProduct.tamano || "",
-      subtipo: updatedProduct.subtipo || "",
+      subtipo: updatedProduct.subtipo || "", // 🔧 CORRECCIÓN 2: Asegurar que subtipo se actualiza
     }, { merge: true });
     await markLastUpdated();
   };
@@ -390,14 +420,14 @@ export const ProductProvider = ({ children }) => {
       precio: precioNumber,
       descripcion: newProduct.descripcion,
       imagen: imagenPrincipal,
-      imagenes: imagenesArray, // Agregar el array de imágenes
+      imagenes: imagenesArray,
       material: newProduct.material || "",
       peso: newProduct.peso || "",
       tamano: newProduct.tamano || "",
+      subtipo: newProduct.subtipo || "", // 🔧 CORRECCIÓN 2: Asegurar que subtipo se guarda
     }, { merge: true });
     await markLastUpdated();
   };
-
 
   const updateProductoDisponible = async (categoria, updatedProduct) => {
     const id = updatedProduct.id.toString();
@@ -419,10 +449,11 @@ export const ProductProvider = ({ children }) => {
       precio: precioNumber,
       descripcion: updatedProduct.descripcion,
       imagen: imagenPrincipal,
-      imagenes: imagenesArray, // Agregar el array de imágenes
+      imagenes: imagenesArray,
       material: updatedProduct.material || "",
       peso: updatedProduct.peso || "",
       tamano: updatedProduct.tamano || "",
+      subtipo: updatedProduct.subtipo || "", // 🔧 CORRECCIÓN 2: Asegurar que subtipo se actualiza
     }, { merge: true });
     await markLastUpdated();
   };
@@ -453,7 +484,7 @@ export const ProductProvider = ({ children }) => {
       };
 
       const docRef = await addDoc(collection(db, "testimonios"), nuevoTestimonio);
-      console.log('✅ Testimonio guardado exitosamente:', docRef.id); // Confirmación positiva
+      console.log('✅ Testimonio guardado exitosamente:', docRef.id);
       await markLastUpdated();
       return docRef.id;
     } catch (error) {
@@ -564,6 +595,7 @@ export const ProductProvider = ({ children }) => {
             material: product.material || "",
             peso: product.peso || "",
             tamano: product.tamano || "",
+            subtipo: product.subtipo || "",
           });
         }
       }
@@ -584,7 +616,7 @@ export const ProductProvider = ({ children }) => {
   };
 
   const resetProducts = async () => {
-    const categories = ["anillos", "collares", "aretes", "pulseras"];
+    const categories = ["anillos", "collares", "aretes", "pulseras", "topos", "dijes", "juegos"]; // 🔧 AGREGADO: topos, dijes, juegos
     for (const category of categories) {
       const querySnapshot = await getDocs(collection(db, category));
       await Promise.all(querySnapshot.docs.map((doc) => deleteDoc(doc.ref)));
@@ -612,7 +644,11 @@ export const ProductProvider = ({ children }) => {
     return {
       totalProducts,
       lastUpdated: lastUpdated ? new Date(lastUpdated).toISOString() : "Nunca",
-      testimonios: testimonioStats
+      testimonios: testimonioStats,
+      categoriesCount: Object.entries(productos).map(([category, products]) => ({
+        category,
+        count: products.length
+      }))
     };
   };
 

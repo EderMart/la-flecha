@@ -242,7 +242,8 @@ const AdministrationPanel = () => {
       }
     });
 
-    const newId = maxId + 1;
+        const newId = getNextId(activeCategory, productType);
+
 
     setEditingProduct({
       categoria: activeCategory,
@@ -256,7 +257,8 @@ const AdministrationPanel = () => {
       material: '',
       peso: '',
       tamano: '',
-      newImageUrl: '' // Inicializar campo para nueva URL
+      newImageUrl: '', // Inicializar campo para nueva URL
+      subtipo: ''
     });
   };
 
