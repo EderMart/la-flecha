@@ -430,7 +430,7 @@ const AdministrationPanel = () => {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Estadísticas del Sistema</h2>
+              <h2 className="text-2xl font-bold text-gray-800">EstadÃ­sticas del Sistema</h2>
               <button
                 onClick={() => setShowStatsModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -465,7 +465,7 @@ const AdministrationPanel = () => {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por Categorí­a</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Terminados por CategorÃ­a</h3>
                 <div className="space-y-3">
                   {stats.categoriesCount.map(({ category, count }) => {
                     const categoryName = categories.find(cat => cat.key === category)?.name || category;
@@ -490,7 +490,7 @@ const AdministrationPanel = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por Categorí­a</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Productos Disponibles por CategorÃ­a</h3>
                 <div className="space-y-3">
                   {categories.map((category) => {
                     const count = productosDisponibles[category.key]?.length || 0;
@@ -521,7 +521,7 @@ const AdministrationPanel = () => {
                 <span className="font-medium">Usuario:</span> {user?.email}
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                <span className="font-medium">última actualización:</span>{' '}
+                <span className="font-medium">Ãšltima actualizaciÃ³n:</span>{' '}
                 {stats.lastUpdated !== 'Nunca' ? new Date(stats.lastUpdated).toLocaleString('es-ES') : 'Nunca'}
               </p>
             </div>
@@ -549,13 +549,11 @@ const AdministrationPanel = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold">
-                <img src="/Logolaflecha.svg" alt="Logo La Flecha" />
-              </span>
+            <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-white">LF</span>
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Panel de Admin</h1>
-            <p className="text-gray-600">La Flecha Joyerí­a</p>
+            <p className="text-gray-600">La Flecha JoyerÃ­a</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -569,7 +567,7 @@ const AdministrationPanel = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="miadmin@gmail.com"
+                placeholder="admin@laflecha.com"
                 required
               />
             </div>
@@ -577,14 +575,14 @@ const AdministrationPanel = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Lock className="w-4 h-4 inline mr-2" />
-                Contraseña
+                ContraseÃ±a
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                placeholder="Contraseña"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 required
               />
             </div>
@@ -599,9 +597,13 @@ const AdministrationPanel = () => {
               type="submit"
               className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
-              Iniciar Sesión
+              Iniciar SesiÃ³n
             </button>
           </form>
+
+          <div className="mt-6 text-center text-sm text-gray-500">
+            Sistema de autenticaciÃ³n segura con Firebase
+          </div>
         </div>
 
         <Notification notification={notification} />
@@ -621,8 +623,8 @@ const AdministrationPanel = () => {
                 <img src="/Logolaflecha.svg" alt="logo la flecha" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Panel de Administración</h1>
-                <p className="text-gray-600">La Flecha Joyerí­a - {user?.email}</p>
+                <h1 className="text-2xl font-bold text-gray-800">Panel de AdministraciÃ³n</h1>
+                <p className="text-gray-600">La Flecha JoyerÃ­a - {user?.email}</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -631,7 +633,7 @@ const AdministrationPanel = () => {
                 className="bg-purple-500 hover:bg-purple-600 text-gray-400 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>Estadísticas</span>
+                <span>EstadÃ­sticas</span>
               </button>
               <button
                 onClick={() => setShowBackupModal(true)}
@@ -645,7 +647,7 @@ const AdministrationPanel = () => {
                 className="bg-red-500 hover:bg-red-600 text-red-500 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Cerrar Sesión</span>
+                <span>Cerrar SesiÃ³n</span>
               </button>
             </div>
           </div>
@@ -808,7 +810,7 @@ const AdministrationPanel = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TÃ­tulo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DescripciÃ³n</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
@@ -888,7 +890,7 @@ const AdministrationPanel = () => {
             <p className="text-gray-500 mb-4">
               {searchTerm ?
                 `No se encontraron productos que coincidan con "${searchTerm}"` :
-                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categorí­a ${categories.find(cat => cat.key === activeCategory)?.name}`
+                `No hay productos ${productType === 'terminados' ? 'terminados' : 'disponibles'} en la categorÃ­a ${categories.find(cat => cat.key === activeCategory)?.name}`
               }
             </p>
             <button
@@ -991,7 +993,7 @@ const AdministrationPanel = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-black mb-2">
-                    Tí­tulo *
+                    TÃ­tulo *
                   </label>
                   <input
                     type="text"
@@ -1019,7 +1021,7 @@ const AdministrationPanel = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-black mb-2">
-                    Imágenes del Producto
+                    ImÃ¡genes del Producto
                   </label>
 
                   {/* Upload desde archivo */}
@@ -1128,14 +1130,14 @@ const AdministrationPanel = () => {
                   {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
                     <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">No hay imágenes agregadas</p>
+                      <p className="text-gray-500 text-sm">No hay imÃ¡genes agregadas</p>
                     </div>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción
+                    DescripciÃ³n
                   </label>
                   <textarea
                     value={editingProduct.descripcion}
@@ -1166,7 +1168,7 @@ const AdministrationPanel = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Tamaño</label>
+                  <label className="block text-sm font-medium text-black mb-2">TamaÃ±o</label>
                   <input
                     type="text"
                     value={editingProduct.tamano || ""}
@@ -1204,7 +1206,7 @@ const AdministrationPanel = () => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Gestión de Datos</h2>
+                <h2 className="text-2xl font-bold text-gray-800">GestiÃ³n de Datos</h2>
                 <button
                   onClick={() => setShowBackupModal(false)}
                   className="text-gray-400 hover:text-gray-600"

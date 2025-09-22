@@ -1347,25 +1347,27 @@ const LaFlecha = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-        {/* Video de fondo */}
-        <div className="absolute inset-0 w-full h-full">
-          <video
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-          >
-            <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.mp4" type="video/mp4" />
-            <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.webm" type="video/webm" />
-            {/* Fallback para navegadores que no soporten video */}
-            Tu navegador no soporta video HTML5.
-          </video>
-
-          {/* Overlay oscuro para mejorar legibilidad del texto */}
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
+      {/* Hero Section Mejorado */}
+      /* Hero Section Mejorado con Video de Fondo */
+<section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+  {/* Video de fondo */}
+  <div className="absolute inset-0 w-full h-full">
+    <video
+      className="w-full h-full object-cover"
+      autoPlay
+      muted
+      loop
+      playsInline
+    >
+      <source src="/path-to-your-video.mp4" type="video/mp4" />
+      <source src="/path-to-your-video.webm" type="video/webm" />
+      {/* Fallback para navegadores que no soporten video */}
+      Tu navegador no soporta video HTML5.
+    </video>
+    
+    {/* Overlay oscuro para mejorar legibilidad del texto */}
+    <div className="absolute inset-0 bg-black/50"></div>
+  </div>
 
         {/* Efecto de partículas de fondo (mantiene las partículas originales) */}
         <div className="absolute inset-0 opacity-10 z-10">
