@@ -21,7 +21,7 @@ const CATEGORY_SUBTYPES = {
   dijes: ['Dijes tradicionales'],
   juegos: [
     'Juego de pulseras y anillo',
-    'Juego de cadena y dije',
+    'Juego de cadena y dije', 
     'Juego de cadena, pulsera y anillo'
   ]
 };
@@ -45,19 +45,19 @@ const AdministrationPanel = () => {
 
   // Estado de autenticaciÃ³n
   const { user, loading: authLoading } = useAuthState();
-
-  const handleFileUpload = (event) => {
+  
+ const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
-
+    
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target.result;
         const currentImages = editingProduct.imagenes || [];
         const newImages = [...currentImages, base64];
-
-        setEditingProduct({
-          ...editingProduct,
+        
+        setEditingProduct({ 
+          ...editingProduct, 
           imagenes: newImages,
           imagen: newImages[0] || base64
         });
@@ -661,7 +661,15 @@ const AdministrationPanel = () => {
             {/* Selector de tipo de productos */}
             <div className="flex justify-center">
               <div className="flex bg-gray-100 rounded-lg p-1">
-
+                <button
+                  onClick={() => setProductType('terminados')}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
+                    ? 'text-gray-400 text-gray-400 shadow-md'
+                    : 'text-gray-400 hover:text-gray-800'
+                    }`}
+                >
+                  Productos Terminados
+                </button>
                 <button
                   onClick={() => setProductType('disponibles')}
                   className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'disponibles'
@@ -670,15 +678,6 @@ const AdministrationPanel = () => {
                     }`}
                 >
                   Productos Disponibles
-                </button>
-                <button
-                  onClick={() => setProductType('terminados')}
-                  className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${productType === 'terminados'
-                    ? 'text-gray-400 text-gray-400 shadow-md'
-                    : 'text-gray-400 hover:text-gray-800'
-                    }`}
-                >
-                  Productos Personalizados
                 </button>
               </div>
             </div>
@@ -965,7 +964,7 @@ const AdministrationPanel = () => {
                           setEditingProduct({ ...editingProduct, id: parseInt(e.target.value) || 1 });
                         }
                       }}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600 ${!!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900 ${!!editingProduct.titulo ? 'bg-gray-100 cursor-not-allowed' : ''
                         }`}
                       min="1"
                     />
@@ -976,164 +975,164 @@ const AdministrationPanel = () => {
                     )}
                   </div>
                 </div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Subtipo
+  </label>
+  <select
+    value={editingProduct.subtipo || ''}
+    onChange={(e) => setEditingProduct({ ...editingProduct, subtipo: e.target.value })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+  >
+    <option value="">Seleccionar subtipo</option>
+    {CATEGORY_SUBTYPES[editingProduct.categoria]?.map(subtipo => (
+      <option key={subtipo} value={subtipo}>{subtipo}</option>
+    ))}
+  </select>
+</div>
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Subtipo
-                  </label>
-                  <select
-                    value={editingProduct.subtipo || ''}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, subtipo: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
-                  >
-                    <option value="">Seleccionar subtipo</option>
-                    {CATEGORY_SUBTYPES[editingProduct.categoria]?.map(subtipo => (
-                      <option key={subtipo} value={subtipo}>{subtipo}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     TÃ­tulo *
                   </label>
                   <input
                     type="text"
                     value={editingProduct.titulo}
                     onChange={(e) => setEditingProduct({ ...editingProduct, titulo: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="Nombre del producto"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Precio *
                   </label>
                   <input
                     type="text"
                     value={editingProduct.precio}
                     onChange={(e) => setEditingProduct({ ...editingProduct, precio: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="$0,000"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    ImÃ¡genes del Producto
-                  </label>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    ImÃ¡genes del Producto
+  </label>
+  
+  {/* Upload desde archivo */}
+  <div className="mb-4">
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleFileUpload}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+    />
+    <p className="text-xs text-gray-500 mt-1">Selecciona archivos de imagen desde tu computadora</p>
+  </div>
 
-                  {/* Upload desde archivo */}
-                  <div className="mb-4">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
-                    />
-                    <p className="text-xs text-amber-600 mt-1">Selecciona archivos de imagen desde tu computadora</p>
-                  </div>
+  {/* Campo para agregar nueva imagen por URL */}
+  <div className="flex space-x-2 mb-3">
+    <input
+      type="url"
+      value={editingProduct.newImageUrl || ''}
+      onChange={(e) => setEditingProduct({ ...editingProduct, newImageUrl: e.target.value })}
+      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+      placeholder="https://ejemplo.com/imagen.jpg"
+    />
+    <button
+      type="button"
+      onClick={() => {
+        if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
+          const currentImages = editingProduct.imagenes || [];
+          // Filtrar imÃ¡genes vacÃ­as y agregar la nueva
+          const validImages = currentImages.filter(img => img && img.trim());
+          const newImages = [...validImages, editingProduct.newImageUrl.trim()];
 
-                  {/* Campo para agregar nueva imagen por URL */}
-                  <div className="flex space-x-2 mb-3">
-                    <input
-                      type="url"
-                      value={editingProduct.newImageUrl || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, newImageUrl: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
-                      placeholder="https://ejemplo.com/imagen.jpg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (editingProduct.newImageUrl && editingProduct.newImageUrl.trim()) {
-                          const currentImages = editingProduct.imagenes || [];
-                          // Filtrar imÃ¡genes vacÃ­as y agregar la nueva
-                          const validImages = currentImages.filter(img => img && img.trim());
-                          const newImages = [...validImages, editingProduct.newImageUrl.trim()];
+          setEditingProduct({
+            ...editingProduct,
+            imagenes: newImages,
+            imagen: newImages[0], // Primera imagen como principal
+            newImageUrl: ''
+          });
+        }
+      }}
+      className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
+    >
+      <Plus className="w-4 h-4" />
+    </button>
+  </div>
 
-                          setEditingProduct({
-                            ...editingProduct,
-                            imagenes: newImages,
-                            imagen: newImages[0], // Primera imagen como principal
-                            newImageUrl: ''
-                          });
-                        }
-                      }}
-                      className="bg-green-500 hover:bg-green-600 text-amber-600 px-4 py-2 rounded-lg transition-colors duration-200"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
+  {/* Lista de imÃ¡genes actuales */}
+  <div className="space-y-2">
+    {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
+      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+        <img
+          src={imageUrl}
+          alt={`Vista ${index + 1}`}
+          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+          onError={(e) => {
+            e.target.src = '';
+          }}
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-gray-600 truncate">{imageUrl}</p>
+          <p className="text-xs text-gray-400">
+            {index === 0 ? 'Imagen principal' : `Imagen ${index + 1}`}
+          </p>
+        </div>
+        <div className="flex space-x-1">
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const newImages = [...(editingProduct.imagenes || [])];
+                [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
+                setEditingProduct({
+                  ...editingProduct,
+                  imagenes: newImages,
+                  imagen: newImages[0]
+                });
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
+              title="Hacer principal"
+            >
+              Principal
+            </button>
+          )}
+          {(editingProduct.imagenes || []).length > 1 && (
+            <button
+              type="button"
+              onClick={() => {
+                const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
+                setEditingProduct({
+                  ...editingProduct,
+                  imagenes: newImages,
+                  imagen: newImages[0] || ''
+                });
+              }}
+              className="bg-red-500 hover:bg-red-600 text-amber-600 px-2 py-1 rounded text-xs"
+              title="Eliminar imagen"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
 
-                  {/* Lista de imÃ¡genes actuales */}
-                  <div className="space-y-2">
-                    {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).map((imageUrl, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <img
-                          src={imageUrl}
-                          alt={`Vista ${index + 1}`}
-                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                          onError={(e) => {
-                            e.target.src = '';
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-600 truncate">{imageUrl}</p>
-                          <p className="text-xs text-gray-400">
-                            {index === 0 ? 'Imagen principal' : `Imagen ${index + 1}`}
-                          </p>
-                        </div>
-                        <div className="flex space-x-1">
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newImages = [...(editingProduct.imagenes || [])];
-                                [newImages[0], newImages[index]] = [newImages[index], newImages[0]];
-                                setEditingProduct({
-                                  ...editingProduct,
-                                  imagenes: newImages,
-                                  imagen: newImages[0]
-                                });
-                              }}
-                              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs"
-                              title="Hacer principal"
-                            >
-                              Principal
-                            </button>
-                          )}
-                          {(editingProduct.imagenes || []).length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newImages = (editingProduct.imagenes || []).filter((_, i) => i !== index);
-                                setEditingProduct({
-                                  ...editingProduct,
-                                  imagenes: newImages,
-                                  imagen: newImages[0] || ''
-                                });
-                              }}
-                              className="bg-red-500 hover:bg-red-600 text-amber-600 px-2 py-1 rounded text-xs"
-                              title="Eliminar imagen"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
-                    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">No hay imÃ¡genes agregadas</p>
-                    </div>
-                  )}
-                </div>
+  {(editingProduct.imagenes || [editingProduct.imagen].filter(Boolean)).length === 0 && (
+    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+      <p className="text-gray-500 text-sm">No hay imÃ¡genes agregadas</p>
+    </div>
+  )}
+</div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1143,37 +1142,37 @@ const AdministrationPanel = () => {
                     value={editingProduct.descripcion}
                     onChange={(e) => setEditingProduct({ ...editingProduct, descripcion: e.target.value })}
                     rows="4"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="DescripciÃ³n del producto..."
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Material</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
                   <input
                     type="text"
                     value={editingProduct.material || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, material: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2 ">Peso</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Peso</label>
                   <input
                     type="text"
                     value={editingProduct.peso || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, peso: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">TamaÃ±o</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">TamaÃ±o</label>
                   <input
                     type="text"
                     value={editingProduct.tamano || ""}
                     onChange={(e) => setEditingProduct({ ...editingProduct, tamano: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-amber-600"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
