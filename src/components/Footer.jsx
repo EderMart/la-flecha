@@ -41,7 +41,7 @@ export const Footer = () => {
                   href="tel:+573216414607" 
                   className="text-sm sm:text-base hover:text-amber-400 transition-colors duration-200"
                 >
-                  +57 321 641 4607
+                  +57 300 7269024
                 </a>
               </div>
               <div className="flex items-center space-x-3 text-gray-300">
