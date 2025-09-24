@@ -146,45 +146,62 @@ export default function Header() {
         {/* Mobile Navigation */}
         <div className={`md:hidden transition-all duration-300 ease-in-out ${
           isMenuOpen 
-            ? 'max-h-60 opacity-100 pb-4' 
+            ? 'max-h-96 opacity-100 pb-4' 
             : 'max-h-0 opacity-0 overflow-hidden'
         }`}>
           <nav className="border-t border-gray-200 pt-4">
-            <div className="flex flex-col space-y-1">
+            <div className="flex flex-col space-y-3">
+              {/* Enlace Nosotros */}
               <button 
                 onClick={(e) => scrollToSection('Footer', e)}
-                className="text-gray-400 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block text-left w-full bg-transparent border-none cursor-pointer"
+                className="text-gray-600 hover:text-amber-600 hover:bg-gray-50 transition-all duration-200 font-medium text-base px-4 py-3 rounded-md block text-left w-full bg-transparent border-none cursor-pointer"
               >
                 Nosotros
               </button>
               
-              {/* Redes Sociales - Mobile */}
-              <div className="flex items-center justify-center space-x-6 px-4 py-3">
+              {/* Separador visual */}
+              <div className="border-t border-gray-100 my-2"></div>
+              
+              {/* Título para redes sociales */}
+              <div className="px-4 py-1">
+                <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                  Síguenos
+                </span>
+              </div>
+              
+              {/* Redes Sociales - Mobile con diseño mejorado */}
+              <div className="flex flex-col space-y-2 px-2">
                 <button
                   onClick={() => openSocialMedia('instagram')}
-                  className="flex items-center space-x-2 text-gray-400 hover:text-pink-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-md p-1"
+                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Instagram"
                 >
-                  <Instagram className="h-6 w-6" />
+                  <div className="flex-shrink-0">
+                    <Instagram className="h-5 w-5" />
+                  </div>
                   <span className="text-sm font-medium">Instagram</span>
                 </button>
                 
                 <button
                   onClick={() => openSocialMedia('facebook')}
-                  className="flex items-center space-x-2 text-gray-400 hover:text-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md p-1"
+                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Facebook"
                 >
-                  <Facebook className="h-6 w-6" />
+                  <div className="flex-shrink-0">
+                    <Facebook className="h-5 w-5" />
+                  </div>
                   <span className="text-sm font-medium">Facebook</span>
                 </button>
                 
                 <button
                   onClick={shareWebsite}
-                  className="flex items-center space-x-2 text-gray-400 hover:text-amber-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-md p-1"
+                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Compartir"
                 >
-                  <Share2 className="h-6 w-6" />
-                  <span className="text-sm font-medium">Compartir</span>
+                  <div className="flex-shrink-0">
+                    <Share2 className="h-5 w-5" />
+                  </div>
+                  <span className="text-sm font-medium">Compartir página</span>
                 </button>
               </div>
             </div>
