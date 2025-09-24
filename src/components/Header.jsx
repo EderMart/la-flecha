@@ -29,7 +29,7 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 w-full">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo Section */}
           <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
