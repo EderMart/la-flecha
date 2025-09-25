@@ -175,7 +175,7 @@ export default function Header() {
               <div className="flex flex-col space-y-2 px-2">
                 <button
                   onClick={() => openSocialMedia('instagram')}
-                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
+                  className="flex items-center justify-start space-x-3 text-amber-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Instagram"
                 >
                   <div className="flex-shrink-0">
@@ -186,7 +186,7 @@ export default function Header() {
                 
                 <button
                   onClick={() => openSocialMedia('facebook')}
-                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
+                  className="flex items-center justify-start space-x-3 text-amber-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Facebook"
                 >
                   <div className="flex-shrink-0">
@@ -197,7 +197,7 @@ export default function Header() {
                 
                 <button
                   onClick={shareWebsite}
-                  className="flex items-center justify-start space-x-3 text-gray-600 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
+                  className="flex items-center justify-start space-x-3 text-amber-600 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-lg p-3 w-full text-left"
                   aria-label="Compartir"
                 >
                   <div className="flex-shrink-0">
