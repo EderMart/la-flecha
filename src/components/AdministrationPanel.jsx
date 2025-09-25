@@ -6,6 +6,8 @@ import { Edit3, Save, X, Upload, Eye, EyeOff, Plus, Trash2, Search, Download, Ro
 import { useProducts } from './ProductContext';
 import { loginAdmin, logoutAdmin, useAuthState, isAdminUser } from '../../auth';
 
+import ImageUploader from './ImageUploader';
+
 const formatPrice = (p) => {
   const n = Number(p);
   if (!Number.isFinite(n)) return p ? String(p) : '';
@@ -42,6 +44,8 @@ const AdministrationPanel = () => {
   const [importData, setImportData] = useState('');
   const [notification, setNotification] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
+
+const [imageUrl, setImageUrl] = useState('');
 
   // Estado de autenticaciÃ³n
   const { user, loading: authLoading } = useAuthState();
@@ -1024,17 +1028,22 @@ const AdministrationPanel = () => {
                     Imágenes del Producto
                   </label>
 
-                  {/* Upload desde archivo */}
-                  <div className="mb-4">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-600"
-                    />
-                    <p className="text-xs text-amber-600 mt-1">Selecciona archivos de imagen desde tu computadora</p>
-                  </div>
+                  {/* Cloudinary Upload */}
+<div className="mb-4">
+  <ImageUploader 
+    onImageUpload={(url) => {
+      const currentImages = editingProduct.imagenes || [];
+      const newImages = [...currentImages, url];
+      setEditingProduct({
+        ...editingProduct,
+        imagenes: newImages,
+        imagen: newImages[0] || url
+      });
+    }}
+    multiple={false}
+  />
+  <p className="text-xs text-amber-600 mt-1">Las imágenes se suben automáticamente a Cloudinary</p>
+</div>
 
                   {/* Campo para agregar nueva imagen por URL */}
                   <div className="flex space-x-2 mb-3">

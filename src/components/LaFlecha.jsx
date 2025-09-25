@@ -1357,24 +1357,16 @@ const LaFlecha = () => {
             loop
             playsInline
           >
-            <source src="../../public/videos/joyeria-hero.mp4" type="video/mp4" />
-            <source src="../../public/videos/joyeria-hero.webm" type="video/webm" />
-            <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.mp4" type="video/mp4" />
-            <source src="/vecteezy_a-close-up-of-a-jewelry-store-display-highlighting-the_47880078.mov.webm" type="video/webm" />
+            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mp4" type="video/mp4" />
+            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.webm" type="video/webm" />
+            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mov.mp4" type="video/mp4" />
+            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mov.webm" type="video/webm" />
             {/* Fallback para navegadores que no soporten video */}
             Tu navegador no soporta video HTML5.
           </video>
 
           {/* Overlay oscuro para mejorar legibilidad del texto */}
           <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-
-        {/* Efecto de partículas de fondo (mantiene las partículas originales) */}
-        <div className="absolute inset-0 opacity-10 z-10">
-          <div className="absolute top-20 left-10 w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
-          <div className="absolute top-32 right-20 w-1 h-1 bg-amber-300 rounded-full animate-pulse delay-75"></div>
-          <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse delay-150"></div>
-          <div className="absolute bottom-20 right-1/3 w-1 h-1 bg-amber-400 rounded-full animate-pulse delay-300"></div>
         </div>
 
         <div className="relative max-w-5xl mx-auto px-4 z-20">
