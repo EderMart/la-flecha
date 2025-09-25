@@ -102,7 +102,7 @@ export default function Header() {
               <button
                 onClick={() => openSocialMedia('instagram')}
                 className="p-2 text-amber-600 hover:text-pink-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-md"
-                className="p-2 text-gray-400 hover:text-pink-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded-md"
+                
                 aria-label="Instagram"
                 title="Síguenos en Instagram"
               >
@@ -112,7 +112,7 @@ export default function Header() {
               <button
                 onClick={() => openSocialMedia('facebook')}
                 className="p-2 text-amber-600 hover:text-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
-                className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+
                 aria-label="Facebook"
                 title="Síguenos en Facebook"
               >
@@ -122,7 +122,6 @@ export default function Header() {
               <button
                 onClick={shareWebsite}
                 className="p-2 text-amber-600 hover:text-sky-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-md"
-                className="p-2 text-gray-400 hover:text-amber-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-md"
                 aria-label="Compartir"
                 title="Compartir página"
               >
