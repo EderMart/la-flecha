@@ -76,10 +76,12 @@ const LaFlecha = () => {
     telefono: '',
     email: ''
   });
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
 
 
   const { productos, productosDisponibles, testimonios, getTestimoniosPublicos, addTestimonio } = useProducts();
+
 
   // Obtener testimonios pÃºblicos para mostrar
   const testimoniosPublicos = getTestimoniosPublicos();
@@ -321,20 +323,20 @@ const LaFlecha = () => {
                     <>
                       {/* Botones de navegaciÃ³n */}
                       <button
-  onClick={prevImage}
-  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
-  aria-label="Imagen anterior"
->
-  <ChevronLeft className="w-6 h-6" />
-</button>
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Imagen anterior"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
 
                       <button
-  onClick={nextImage}
-  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
-  aria-label="Imagen siguiente"
->
-  <ChevronRight className="w-6 h-6" />
-</button>
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-amber-600 p-3 rounded-full transition-all duration-200 hover:scale-110 z-10"
+                        aria-label="Imagen siguiente"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
 
                       {/* Indicadores de punto */}
                       {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
@@ -360,29 +362,29 @@ const LaFlecha = () => {
                   )}
 
                   {/* Miniaturas en la parte inferior (solo si hay múltiples imágenes) */}
-{images.length > 1 && images.length <= 6 && (
-  <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 max-w-[350px] z-10 bg-black/20 backdrop-blur-sm rounded-xl p-2">
-    {images.map((imageUrl, index) => (
-      <button
-        key={index}
-        onClick={() => goToImage(index)}
-        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-110 ${index === currentImageIndex
-          ? 'border-white shadow-lg'
-          : 'border-transparent hover:border-white/50'
-          }`}
-      >
-        <img
-          src={imageUrl}
-          alt={`Vista ${index + 1}`}
-          className="w-full h-full object-contain bg-white/10"
-          onError={(e) => {
-            e.target.src = '/api/placeholder/64/64';
-          }}
-        />
-      </button>
-    ))}
-  </div>
-)}
+                  {images.length > 1 && images.length <= 6 && (
+                    <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 max-w-[350px] z-10 bg-black/20 backdrop-blur-sm rounded-xl p-2">
+                      {images.map((imageUrl, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToImage(index)}
+                          className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-110 ${index === currentImageIndex
+                            ? 'border-white shadow-lg'
+                            : 'border-transparent hover:border-white/50'
+                            }`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`Vista ${index + 1}`}
+                            className="w-full h-full object-contain bg-white/10"
+                            onError={(e) => {
+                              e.target.src = '/api/placeholder/64/64';
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* NavegaciÃ³n con teclado */}
                   <div
@@ -1349,25 +1351,54 @@ const LaFlecha = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <section className="relative py-24 text-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
         {/* Video de fondo */}
-        <div className="absolute inset-0 w-full h-full">
-          <video
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-          >
-            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mp4" type="video/mp4" />
-            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.webm" type="video/webm" />
-            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mov.mp4" type="video/mp4" />
-            <source src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mov.webm" type="video/webm" />
-            {/* Fallback para navegadores que no soporten video */}
-            Tu navegador no soporta video HTML5.
-          </video>
+        {/* Video de fondo optimizado */}
+<div className="absolute inset-0 w-full h-full">
+  {/* Fondo de color mientras carga */}
+  {!isVideoLoaded && (
+    <div className="w-full h-full bg-gray-900"></div>
+  )}
+  
+  {/* Video optimizado */}
+  <video
+    className={`w-full h-full object-cover transition-opacity duration-500 ${
+      isVideoLoaded ? 'opacity-100' : 'opacity-0'
+    }`}
+    autoPlay
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    onCanPlay={() => setIsVideoLoaded(true)}
+    onError={(e) => {
+      console.log('Error cargando video, intentando con URL original');
+      setIsVideoLoaded(true);
+    }}
+  >
+    {/* Intentar primero con tu URL original que sabemos que funciona */}
+    <source 
+      src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.mp4" 
+      type="video/mp4" 
+    />
+    
+    {/* Backup optimizado */}
+    <source 
+      src="https://res.cloudinary.com/doalbsiet/video/upload/q_auto:good,f_mp4,c_scale,w_1920,br_1500k/v1758775382/joyeria-hero_qmjiko" 
+      type="video/mp4" 
+    />
+    
+    {/* Fallback WebM */}
+    <source 
+      src="https://res.cloudinary.com/doalbsiet/video/upload/v1758775382/joyeria-hero_qmjiko.webm" 
+      type="video/webm" 
+    />
+    
+    {/* Fallback para navegadores que no soporten video */}
+    Tu navegador no soporta video HTML5.
+  </video>
 
-          {/* Overlay oscuro para mejorar legibilidad del texto */}
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
+  {/* Overlay oscuro para mejorar legibilidad del texto */}
+  <div className="absolute inset-0 bg-black/50"></div>
+</div>
 
         <div className="relative max-w-5xl mx-auto px-4 z-20">
           <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
@@ -1380,44 +1411,44 @@ const LaFlecha = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-  <a
-    href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20más%20información"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="group"
-  >
-    <button className="group relative bg-white hover:bg-green-600 text-amber-600 hover:text-green-600 px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-700 flex items-center gap-3 min-w-[280px] justify-center">
-      <div className="flex items-center gap-3">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="drop-shadow-sm"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
-        </svg>
-        <span className="group-hover:translate-x-1 transition-transform duration-300">
-          Chatear por WhatsApp
-        </span>
-      </div>
-    </button>
-  </a>
+            <a
+              href="https://wa.me/573007269024?text=Hola,%20me%20interesa%20obtener%20más%20información"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <button className="group relative bg-white hover:bg-green-600 text-amber-600 hover:text-green-600 px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-green-700 flex items-center gap-3 min-w-[280px] justify-center">
+                <div className="flex items-center gap-3">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="drop-shadow-sm"
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.085" />
+                  </svg>
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">
+                    Chatear por WhatsApp
+                  </span>
+                </div>
+              </button>
+            </a>
 
-  <a
-    href="#productos"
-    className="group"
-  >
-    <button className="group relative bg-white hover:bg-amber-600 text-amber-600 hover:text-blue-600 px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-blue-700 flex items-center gap-3 min-w-[280px] justify-center">
-      <div className="flex items-center gap-3">
-        <ArrowRight className="w-6 h-6 drop-shadow-sm" />
-        <span className="group-hover:translate-x-1 transition-transform duration-300">
-          Ver Catálogo
-        </span>
-      </div>
-    </button>
-  </a>
-</div>
+            <a
+              href="#productos"
+              className="group"
+            >
+              <button className="group relative bg-white hover:bg-amber-600 text-amber-600 hover:text-blue-600 px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-blue-700 flex items-center gap-3 min-w-[280px] justify-center">
+                <div className="flex items-center gap-3">
+                  <ArrowRight className="w-6 h-6 drop-shadow-sm" />
+                  <span className="group-hover:translate-x-1 transition-transform duration-300">
+                    Ver Catálogo
+                  </span>
+                </div>
+              </button>
+            </a>
+          </div>
         </div>
       </section>
 
